@@ -12,4 +12,5 @@ def remote_execute(address: str, cmd: str) -> Popen:
     :rtype: Popen
     '''
 
-    return Popen(['ssh', '-o', 'StrictHostKeyChecking=no', f'root@{address}', cmd], stdout=PIPE, stderr=PIPE, text=True)
+    return Popen(['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no',
+                  f'root@{address}', cmd], stdout=PIPE, stderr=PIPE, text=True)

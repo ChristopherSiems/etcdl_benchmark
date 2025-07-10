@@ -1,3 +1,5 @@
+from io import TextIOWrapper
+from select import select
 from subprocess import PIPE, Popen
 
 
@@ -17,7 +19,8 @@ def remote_execute(address: str, cmd: str) -> Popen:
 
 
 def wait_output(process: Popen, target: str) -> None:
+    out: TextIOWrapper = process.stdout
     while True:
-        if target in process.stdout.readline():
+        if select([out], [], [])[0] and target in out.readline():
             print('found')
             return

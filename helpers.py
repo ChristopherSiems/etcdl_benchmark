@@ -13,8 +13,8 @@ def remote_execute(address: str, cmd: str) -> Popen:
     '''
 
     return Popen(['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no',
-                  f'root@{address}', cmd], stdout=PIPE, stderr=STDOUT,
-                 text=True)
+                  f'root@{address}', f'PATH=$PATH:/usr/local/go/bin && {cmd}'],
+                 stdout=PIPE, stderr=STDOUT, text=True)
 
 
 def wait_output(process: Popen, target: str) -> None:

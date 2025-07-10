@@ -10,4 +10,5 @@ if __name__ == '__main__':
     exec_wait('10.10.1.3', 'cd /local && sh run_etcd2.sh',
               'Starting etcd...')
 
-    print(remote_exec_sync('10.10.1.4', ETCD_CLIENT_CMD))
+    print(remote_exec_sync('10.10.1.4',
+          ETCD_CLIENT_CMD).splitlines()[-1].strip())

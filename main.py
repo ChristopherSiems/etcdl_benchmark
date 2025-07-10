@@ -4,4 +4,5 @@ ETCD_CLIENT_CMD: str = 'cd /local/etcd-client && git pull && go build && ./etcd-
 
 if __name__ == '__main__':
     wait_output(remote_execute(
-        '10.10.1.1', 'cd /local && sh run_etcd0.sh'), '')
+        '10.10.1.1', 'cd /local && sh run_etcd0.sh'),
+        'Enabled on disk kv store!')

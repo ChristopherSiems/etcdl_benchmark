@@ -1,21 +1,57 @@
-from subprocess import PIPE, Popen, STDOUT
+from typing import List
+from subprocess import PIPE, Popen, run
+
+SSH_KWS: List[str] = ['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no']
+ADDR: str = 'root@{addr}'
+CMD: str = 'PATH=$PATH:/usr/local/go/bin && {cmd}'
 
 
-def remote_execute(address: str, cmd: str) -> Popen:
+def exec_print(addr: str, cmd: str) -> None:
+    '''
+    prints the command and IP address given in a shell-like format
+    :param addr: the IP address connected to
+    :type addr: str
+    :param cmd: the command being executed
+    :type cmd: str
+    '''
+
+    print(f'{addr}$ {cmd}')
+
+
+def remote_exec(addr: str, cmd: str) -> Popen:
     '''
     execute a given command on an addressed computer
-    :param address: the IP address of the computer to execute on
-    :type address: str
+    :param addr: the IP address of the computer to execute on
+    :type addr: str
     :param cmd: the command to execute
     :type cmd: str
     :returns: the process being executed
     :rtype: Popen
     '''
 
-    print(f'$ {cmd}')
-    return Popen(['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no',
-                  f'root@{address}', f'PATH=$PATH:/usr/local/go/bin && {cmd}'],
-                 stdout=PIPE, stderr=STDOUT, text=True)
+    exec_print(addr, cmd)
+    return Popen(SSH_KWS + [ADDR.format(addr=addr), CMD.format(cmd=cmd)],
+                 stdout=PIPE, text=True)
+
+
+def remote_exec_sync(addr: str, cmd: str) -> str:
+    '''
+    execute a given command on an addressed computer and wait for it to
+    complete
+    :param addr: the IP address of the computer to execute on
+    :type addr: str
+    :param cmd: the command to execute
+    :type cmd: str
+    :returns: the output of the command
+    :rtype: str
+    '''
+
+    exec_print(addr, cmd)
+    print('waiting... ', end='')
+    out: str = run(SSH_KWS + [ADDR.format(addr=addr), CMD.format(cmd=cmd)],
+                   stdout=PIPE, text=True).stdout
+    print('continuing')
+    return out
 
 
 def wait_output(process: Popen, target: str) -> None:
@@ -34,16 +70,16 @@ def wait_output(process: Popen, target: str) -> None:
             return
 
 
-def execute_wait(address: str, cmd: str, target: str) -> None:
+def exec_wait(addr: str, cmd: str, target: str) -> None:
     '''
     execute a given command on an addressed computer, then wait for a specific
     output from the process
-    :param address: the IP address of the computer to execute on
-    :type address: str
+    :param addr: the IP address of the computer to execute on
+    :type addr: str
     :param cmd: the command to execute
     :type cmd: str
     :param target: the output to look for
     :type target: str
     '''
 
-    wait_output(remote_execute(address, cmd), target)
+    wait_output(remote_exec(addr, cmd), target)

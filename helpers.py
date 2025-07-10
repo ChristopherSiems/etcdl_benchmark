@@ -1,4 +1,5 @@
 from typing import List
+from re import findall, Pattern
 from subprocess import PIPE, Popen, run
 
 SSH_KWS: List[str] = ['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no']
@@ -16,6 +17,20 @@ def exec_print(addr: str, cmd: str) -> None:
     '''
 
     print(f'{addr}$ {cmd}')
+
+
+def extract_num(txt: str, pattern: Pattern) -> int:
+    '''
+    extracts a number from a piece of text based on a given regex
+    :param txt: the text to extract the number from
+    :type txt: str
+    :param pattern: the pattern to find the number using
+    :type pattern: Pattern
+    :returns: the extracted number
+    :rtype: int
+    '''
+
+    return int(findall(compile(r'\d+'), findall(pattern, txt)[0])[-1])
 
 
 def remote_exec(addr: str, cmd: str) -> Popen:

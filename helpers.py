@@ -18,5 +18,6 @@ def remote_execute(address: str, cmd: str) -> Popen:
 
 def wait_output(process: Popen, target: str) -> None:
     while True:
-        with open(process.stdout) as out:
-            print(out.read())
+        if target in process.stdout.readline():
+            print('found')
+            return

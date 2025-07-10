@@ -1,6 +1,4 @@
-from io import TextIOWrapper
-from select import select
-from subprocess import PIPE, Popen
+from subprocess import PIPE, Popen, STDOUT
 
 
 def remote_execute(address: str, cmd: str) -> Popen:
@@ -15,12 +13,12 @@ def remote_execute(address: str, cmd: str) -> Popen:
     '''
 
     return Popen(['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no',
-                  f'root@{address}', cmd], stdout=PIPE, stderr=PIPE, text=True)
+                  f'root@{address}', cmd], stdout=PIPE, stderr=STDOUT,
+                 text=True)
 
 
 def wait_output(process: Popen, target: str) -> None:
-    out: TextIOWrapper = process.stdout
     while True:
-        if select([out], [], [])[0] and target in out.readline():
+        if target in process.stdout.readline():
             print('found')
             return

@@ -1,5 +1,5 @@
 from typing import List
-from re import findall, Pattern
+from re import compile, findall, Pattern
 from subprocess import PIPE, Popen, run
 
 SSH_KWS: List[str] = ['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no']

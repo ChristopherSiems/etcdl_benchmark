@@ -14,3 +14,8 @@ def remote_execute(address: str, cmd: str) -> Popen:
 
     return Popen(['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no',
                   f'root@{address}', cmd], stdout=PIPE, stderr=PIPE, text=True)
+
+
+def wait_output(process: Popen, target: str) -> None:
+    while True:
+        print(process.stdout)

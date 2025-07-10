@@ -1,5 +1,5 @@
 from typing import List
-from subprocess import PIPE, Popen, run, STDOUT
+from subprocess import PIPE, Popen, run
 
 SSH_KWS: List[str] = ['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no']
 ADDR: str = 'root@{addr}'
@@ -31,7 +31,7 @@ def remote_exec(addr: str, cmd: str) -> Popen:
 
     exec_print(addr, cmd)
     return Popen(SSH_KWS + [ADDR.format(addr=addr), CMD.format(cmd=cmd)],
-                 stdout=PIPE, stderr=STDOUT, text=True)
+                 stdout=PIPE, stderr=PIPE, text=True)
 
 
 def remote_exec_sync(addr: str, cmd: str) -> str:
@@ -49,7 +49,7 @@ def remote_exec_sync(addr: str, cmd: str) -> str:
     exec_print(addr, cmd)
     print('waiting... ', end='')
     out: str = run(SSH_KWS + [ADDR.format(addr=addr), CMD.format(cmd=cmd)],
-                   stdout=PIPE, stderr=STDOUT, text=True).stdout
+                   stdout=PIPE, stderr=PIPE, text=True).stdout
     print('continuing')
     return out
 

@@ -1,0 +1,16 @@
+{
+  "etcd": [
+    {
+      "data_size": 1,
+      "num_operations": 10000,
+      "read_ratio": 1.0,
+      "num_clients": 5
+    },
+    {
+      "data_size": 1,
+      "num_operations": 10000,
+      "read_ratio": 1.0,
+      "num_clients": 5
+    }
+  ]
+}

@@ -1,6 +1,8 @@
-from typing import List
-from re import compile, findall, Pattern
+from re import Pattern
+from re import compile as rcompile
+from re import findall
 from subprocess import PIPE, Popen, run
+from typing import List
 
 SSH_KWS: List[str] = ['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no']
 ADDR: str = 'root@{addr}'
@@ -30,7 +32,7 @@ def extract_num(txt: str, pattern: Pattern) -> int:
     :rtype: int
     '''
 
-    return int(findall(compile(r'\d+'), findall(pattern, txt)[0])[-1])
+    return int(findall(rcompile(r'\d+'), findall(pattern, txt)[0])[-1])
 
 
 def remote_exec(addr: str, cmd: str) -> Popen:
@@ -62,10 +64,8 @@ def remote_exec_sync(addr: str, cmd: str) -> str:
     '''
 
     exec_print(addr, cmd)
-    print('waiting... ', end='')
     out: str = run(SSH_KWS + [ADDR.format(addr=addr), CMD.format(cmd=cmd)],
                    stdout=PIPE, stderr=PIPE, text=True).stdout
-    print('continuing')
     return out
 
 
@@ -78,10 +78,8 @@ def wait_output(process: Popen, target: str) -> None:
     :type target: str
     '''
 
-    print('waiting... ', end='')
     while True:
         if target in process.stdout.readline():
-            print('continuing')
             return
 
 

@@ -71,4 +71,13 @@ if __name__ == '__main__':
         print('terminating servers')
         for process in processes:
             process.terminate()
-            process.wait()
+            try:
+                process.wait(timeout=15)
+            except TimeoutError:
+                process.kill()
+                process.wait()
+
+        print('clearing storage')
+        for i in range(server_count):
+            remote_exec_sync(f'10.10.1.{i + 1}',
+                             'rm -rf /local/etcd/storage.etcd')

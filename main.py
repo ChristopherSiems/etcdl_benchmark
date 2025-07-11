@@ -73,7 +73,7 @@ if __name__ == '__main__':
             process.terminate()
             try:
                 process.wait(timeout=15)
-            except TimeoutError:
+            except TimeoutExpired:
                 process.kill()
                 process.wait()
 

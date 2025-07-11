@@ -49,12 +49,9 @@ if __name__ == '__main__':
         for i in range(server_count):
             processes.append(exec_wait(
                 f'10.10.1.{i + 1}', f'cd /local && sh run_etcd{i}.sh', 'Starting etcd...'))
-        print()
 
         out: str = remote_exec_sync(
             '10.10.1.4', ETCD_CLIENT_CMD.format(**cfg)).splitlines()[-1].strip()
-        print()
-
         ops: int = extract_num(out, OPS_PATTERN)
         med: int = extract_num(out, MED_PATTERN)
         p95: int = extract_num(out, P95_PATTERN)
@@ -63,11 +60,11 @@ if __name__ == '__main__':
         print(f'med: {med}')
         print(f'p95: {p95}')
         print(f'p99: {p99}')
-        print()
 
-        with open(data_filepath, 'a', encoding='utf-8') as data_file:
-            if not Path(f'data/{test_name}.csv').exists():
+        if not Path(data_filepath).exists():
+            with open(data_filepath, 'w', encoding='utf-8') as data_file:
                 data_file.write(CSV_HEADER)
+        with open(data_filepath, 'a', encoding='utf-8') as data_file:
             data_file.write(CSV_ENTRY.format(
                 system='etcd', server_count=server_count, ops=ops, med=med, p95=p95, p99=p99, **cfg))
 
@@ -75,4 +72,3 @@ if __name__ == '__main__':
         for process in processes:
             process.terminate()
             process.wait()
-        print()

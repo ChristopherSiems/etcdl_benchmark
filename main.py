@@ -1,9 +1,11 @@
 '''main benchmarking logic'''
 
 from json import load
+from pathlib import Path
 from re import Pattern
 from re import compile as rcompile
-from typing import TypedDict
+from subprocess import Popen
+from typing import List, NotRequired, TypedDict
 
 from helpers import exec_wait, extract_num, remote_exec_sync
 
@@ -14,9 +16,14 @@ MED_PATTERN: Pattern = rcompile(r' 50th\(\d+\) ')
 P95_PATTERN: Pattern = rcompile(r' 95th\(\d+\) ')
 P99_PATTERN: Pattern = rcompile(r' 99th\(\d+\) ')
 
+CSV_HEADER: str = 'system,server_count,num_operations,read_ratio,num_clients,ops,med,p95,p99\n'
+CSV_ENTRY: str = '{system},{server_count},{num_operations},{read_ratio},{num_clients},{ops},{med},{p95},{p99}\n'
+
 
 class ETCDConfig(TypedDict):
     '''type for etcd benchmark config'''
+    server_count: NotRequired[int]
+    test_name: NotRequired[str]
     data_size: int
     num_operations: int
     read_ratio: float
@@ -24,27 +31,28 @@ class ETCDConfig(TypedDict):
 
 
 class Config(TypedDict):
-    '''type for etcd-light benchmark config'''
-    etcd: ETCDConfig
+    '''type for etcd and etcd-light benchmark config'''
+    etcd: List[ETCDConfig]
 
 
 if __name__ == '__main__':
-    config: Config = {}
-    with open('config.json', encoding='utf-8') as file:
-        config = load(file)
-
-    exec_wait('10.10.1.1', 'cd /local && sh run_etcd0.sh',
-              'Starting etcd...')
-    exec_wait('10.10.1.2', 'cd /local && sh run_etcd1.sh',
-              'Starting etcd...')
-    exec_wait('10.10.1.3', 'cd /local && sh run_etcd2.sh',
-              'Starting etcd...')
-    print()
+    config: Config = {'etcd': []}
+    with open('config.json', encoding='utf-8') as config_file:
+        config = load(config_file)
 
     for cfg in config['etcd']:
+        server_count: int = cfg.pop('server_count')
+        test_name: str = cfg.pop('test_name')
+        data_filepath: str = f'data/{test_name}.csv'
+
+        processes: List[Popen] = []
+        for i in range(server_count):
+            processes.append(exec_wait(
+                f'10.10.1.{i + 1}', f'cd /local && sh run_etcd{i}.sh', 'Starting etcd...'))
+        print()
+
         out: str = remote_exec_sync(
-            '10.10.1.4',
-            ETCD_CLIENT_CMD.format(**cfg)).splitlines()[-1].strip()
+            '10.10.1.4', ETCD_CLIENT_CMD.format(**cfg)).splitlines()[-1].strip()
         print()
 
         ops: int = extract_num(out, OPS_PATTERN)
@@ -55,4 +63,16 @@ if __name__ == '__main__':
         print(f'med: {med}')
         print(f'p95: {p95}')
         print(f'p99: {p99}')
+        print()
+
+        with open(data_filepath, 'a', encoding='utf-8') as data_file:
+            if not Path(f'data/{test_name}.csv').exists():
+                data_file.write(CSV_HEADER)
+            data_file.write(CSV_ENTRY.format(
+                system='etcd', server_count=server_count, ops=ops, med=med, p95=p95, p99=p99, **cfg))
+
+        print('terminating servers')
+        for process in processes:
+            process.terminate()
+            process.wait()
         print()

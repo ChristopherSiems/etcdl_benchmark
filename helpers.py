@@ -47,8 +47,7 @@ def remote_exec(addr: str, cmd: str) -> Popen:
     '''
 
     exec_print(addr, cmd)
-    return Popen(SSH_KWS + [ADDR.format(addr=addr), CMD.format(cmd=cmd)],
-                 stdout=PIPE, stderr=PIPE, text=True)
+    return Popen(SSH_KWS + [ADDR.format(addr=addr), CMD.format(cmd=cmd)], stdout=PIPE, stderr=PIPE, text=True)
 
 
 def remote_exec_sync(addr: str, cmd: str) -> str:
@@ -83,7 +82,7 @@ def wait_output(process: Popen, target: str) -> None:
             return
 
 
-def exec_wait(addr: str, cmd: str, target: str) -> None:
+def exec_wait(addr: str, cmd: str, target: str) -> Popen:
     '''
     execute a given command on an addressed computer, then wait for a specific
     output from the process
@@ -93,6 +92,10 @@ def exec_wait(addr: str, cmd: str, target: str) -> None:
     :type cmd: str
     :param target: the output to look for
     :type target: str
+    :returns: the running process
+    :rtype: Popen
     '''
 
-    wait_output(remote_exec(addr, cmd), target)
+    process: Popen = remote_exec(addr, cmd)
+    wait_output(process, target)
+    return process

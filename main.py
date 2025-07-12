@@ -10,7 +10,7 @@ from typing import List, NotRequired, TypedDict
 from helpers import exec_wait, extract_num, remote_exec_sync
 
 ETCD_CLIENT_CMD: str = 'cd /local/etcd-client && git pull && go build && ./etcd-client -addresses={server_addrs} -data-size={data_size} -num-ops={num_operations} -read-ratio={read_ratio} -num-clients={num_clients}'
-ETCDL_SERVER_CMD: str = 'cd /local/go_networking_benchmark/run && cd .. && git fetch &&  git checkout dev && git pull && go build && mv networking_benchmark run/ && cd /local/go_networking_benchmark/run && ./networking_benchmark server -num-dbs=5 -max-db-index={num_operations + 100} -node={i} -memory=false -wal-file-count={wal_file_count} -manual=fsync -flags=none -peer-connections=1 -peer-listen="10.10.1.{i + 1}:6900" -client-listen="10.10.1.{i + 1}:7000" -peer-addresses="{peer_addrs}" -fast-path-writes=false'
+ETCDL_SERVER_CMD: str = 'cd /local/go_networking_benchmark/run && cd .. && git fetch &&  git checkout dev && git pull && go build && mv networking_benchmark run/ && cd /local/go_networking_benchmark/run && ./networking_benchmark server -num-dbs=5 -max-db-index={num_operations} -node={i} -memory=false -wal-file-count={wal_file_count} -manual=fsync -flags=none -peer-connections=1 -peer-listen="10.10.1.{j}:6900" -client-listen="10.10.1.{j}:7000" -peer-addresses="{peer_addrs}" -fast-path-writes=false'
 ETCDL_CLIENT_CMD: str = 'cd /local/go_networking_benchmark && git fetch &&  git checkout dev && git pull && go build && ./networking_benchmark client -addresses={server_addrs} -data-size={data_size} -ops={num_operations} -read-ratio={read_ratio} -clients={num_clients} -read-mem={read_mem} -write-mem=false -find-leader=false'
 
 CSV_HEADER: str = 'system,server_count,data_size,read_ratio,num_clients,read_mem,wal_file_count,ops,med,p95,p99\n'
@@ -87,7 +87,7 @@ if __name__ == '__main__':
                         server_cmd_fmt = server_cmd.format(i=i)
                     case 'etcdl':
                         server_cmd_fmt = server_cmd.format(
-                            i=i, num_operations=cfg['num_operations'], peer_addrs=addrs.format(port_num=6900))
+                            i=i, j=i + 1, num_operations=cfg['num_operations'] + 100, peer_addrs=addrs.format(port_num=6900))
                 processes.append(
                     exec_wait(f'10.10.1.{i + 1}', server_cmd_fmt, server_target))
 

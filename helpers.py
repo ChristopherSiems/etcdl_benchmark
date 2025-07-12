@@ -6,7 +6,7 @@ from typing import List
 
 SSH_KWS: List[str] = ['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no']
 ADDR: str = 'root@{addr}'
-CMD: str = 'PATH=$PATH:/usr/local/go/bin && {cmd}'
+CMD: str = "'stdbuf -oL -eL bash -c \"PATH=$PATH:/usr/local/go/bin && {cmd}\""
 
 
 def exec_print(addr: str, cmd: str) -> None:

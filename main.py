@@ -87,7 +87,7 @@ if __name__ == '__main__':
                         server_cmd_fmt = server_cmd.format(i=i)
                     case 'etcdl':
                         server_cmd_fmt = server_cmd.format(
-                            i=i, j=i + 1, num_operations=cfg['num_operations'] + 100, peer_addrs=addrs.format(port_num=6900))
+                            i=i, j=i + 1, num_operations=cfg['num_operations'] + 100, wal_file_count=cfg['wal_file_count'], peer_addrs=addrs.format(port_num=6900))
                 processes.append(
                     exec_wait(f'10.10.1.{i + 1}', server_cmd_fmt, server_target))
 

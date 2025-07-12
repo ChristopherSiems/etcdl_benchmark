@@ -81,18 +81,20 @@ if __name__ == '__main__':
 
             processes: List[Popen] = []
             for i in range(server_count):
-                    server_cmd_fmt: str = ''
+                server_cmd_fmt: str = ''
                 match system:
                     case 'etcd':
                         server_cmd_fmt = server_cmd.format(i=i)
                     case 'etcdl':
-                        server_cmd_fmt = server_cmd.format(i=i, num_operations=cfg['num_operations'], peer_addrs=addrs.format(port_num=6900))
+                        server_cmd_fmt = server_cmd.format(
+                            i=i, num_operations=cfg['num_operations'], peer_addrs=addrs.format(port_num=6900))
                 processes.append(
                     exec_wait(f'10.10.1.{i + 1}', server_cmd_fmt, server_target))
 
             match system:
                 case 'etcd':
-                    client_cmd = client_cmd.format(server_addrs=addrs.format(port_num=2379), data_size=cfg['data_size'], num_operations=cfg['num_operations'], read_ratio=cfg['read_ratio'], num_clients=cfg['num_clients'])
+                    client_cmd = client_cmd.format(server_addrs=addrs.format(
+                        port_num=2379), data_size=cfg['data_size'], num_operations=cfg['num_operations'], read_ratio=cfg['read_ratio'], num_clients=cfg['num_clients'])
                 case 'etcdl':
                     client_cmd = client_cmd.format(server_addrs=addrs.format(port_num=6900), data_size=cfg['data_size'], num_operations=cfg['num_operations'], read_ratio=cfg['read_ratio'], num_clients=cfg['num_clients'],
                                                    read_mem=cfg['read_mem'])

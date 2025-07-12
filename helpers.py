@@ -1,7 +1,7 @@
 from re import Pattern
 from re import compile as rcompile
 from re import findall
-from subprocess import PIPE, Popen, run
+from subprocess import PIPE, Popen, TimeoutExpired, run
 from typing import List
 
 SSH_KWS: List[str] = ['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no']
@@ -33,6 +33,30 @@ def extract_num(txt: str, pattern: Pattern) -> int:
     '''
 
     return int(findall(rcompile(r'\d+'), findall(pattern, txt)[0])[-1])
+
+
+def kill_servers(processes: List[Popen], server_count: int, clean_cmd: str) -> None:
+    '''
+    kill running servers and remove stored data
+    :param processes: the server processes
+    :type: processes: List[Popen]
+    :param server_count: the number of servers
+    :type server_count: int
+    :param clean_cmd: the command to clean stored data
+    :type clean_cmd: str
+    '''
+
+    print('terminating servers')
+    for process in processes:
+        process.terminate()
+        try:
+            process.wait(timeout=15)
+        except TimeoutExpired:
+            process.kill()
+            process.wait()
+
+    for i in range(server_count):
+        remote_exec_sync(f'10.10.1.{i + 1}', clean_cmd)
 
 
 def remote_exec(addr: str, cmd: str) -> Popen:

@@ -55,7 +55,7 @@ if __name__ == '__main__':
     with open('config.json', encoding='utf-8') as config_file:
         config = load(config_file)
 
-    for system, configs in config:
+    for system, configs in config.items():
         server_cmd: str = ''
         client_cmd: str = ''
         clean_cmd: str = ''

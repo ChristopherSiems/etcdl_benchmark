@@ -110,11 +110,13 @@ if __name__ == '__main__':
                                                        num_clients=cfg['num_clients'],
                                                        read_mem=str(cfg['read_mem']).lower())
                 out: str = remote_exec_sync(
-                    f'10.10.1.{server_count + 1}', client_cmd).splitlines()[-1].strip()
-                ops: int = extract_num(out, OPS_PATTERN)
-                med: int = extract_num(out, MED_PATTERN)
-                p95: int = extract_num(out, P95_PATTERN)
-                p99: int = extract_num(out, P99_PATTERN)
+                    f'10.10.1.{server_count + 1}', client_cmd)
+                print(out)
+                last: str = out.splitlines()[-1].strip()
+                ops: int = extract_num(last, OPS_PATTERN)
+                med: int = extract_num(last, MED_PATTERN)
+                p95: int = extract_num(last, P95_PATTERN)
+                p99: int = extract_num(last, P99_PATTERN)
                 print(f'ops: {ops}')
                 print(f'med: {med}')
                 print(f'p95: {p95}')

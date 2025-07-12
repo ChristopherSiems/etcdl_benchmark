@@ -32,7 +32,7 @@ class ETCDConfig(TypedDict):
     num_clients: int
 
 
-class ETCLDConfig(TypedDict):
+class ETCDLConfig(TypedDict):
     '''type for etcd-light benchmark config'''
     server_count: NotRequired[int]
     test_name: NotRequired[str]

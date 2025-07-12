@@ -51,50 +51,50 @@ class Config(TypedDict):
 
 
 if __name__ == '__main__':
-    try:
-        config: Config = {'etcd': [], 'etcdl': []}
-        with open('config.json', encoding='utf-8') as config_file:
-            config = load(config_file)
+    config: Config = {'etcd': [], 'etcdl': []}
+    with open('config.json', encoding='utf-8') as config_file:
+        config = load(config_file)
 
-        for system, configs in config.items():
-            server_cmd: str = ''
-            client_cmd: str = ''
-            clean_cmd: str = ''
-            server_target: str = ''
-            match system:
-                case 'etcd':
-                    server_cmd = 'cd /local && sh run_etcd{i}.sh'
-                    client_cmd = ETCD_CLIENT_CMD
-                    clean_cmd = 'rm -rf /local/etcd/storage.etcd'
-                    server_target = 'Starting etcd...'
-                case 'etcdl':
-                    server_cmd = ETCDL_SERVER_CMD
-                    client_cmd = ETCDL_CLIENT_CMD
-                    clean_cmd = 'rm -rf /local/go_networking_benchmark/run/*'
-                    server_target = 'Trying to connect to peer '
+    for system, configs in config.items():
+        server_cmd: str = ''
+        client_cmd: str = ''
+        clean_cmd: str = ''
+        server_target: str = ''
+        match system:
+            case 'etcd':
+                server_cmd = 'cd /local && sh run_etcd{i}.sh'
+                client_cmd = ETCD_CLIENT_CMD
+                clean_cmd = 'rm -rf /local/etcd/storage.etcd'
+                server_target = 'Starting etcd...'
+            case 'etcdl':
+                server_cmd = ETCDL_SERVER_CMD
+                client_cmd = ETCDL_CLIENT_CMD
+                clean_cmd = 'rm -rf /local/go_networking_benchmark/run/*'
+                server_target = 'Trying to connect to peer '
 
-            for cfg in configs:
-                server_count: int = cfg['server_count']
-                test_name: str = cfg['test_name']
-                data_filepath: str = f'data/{test_name}.csv'
-                addrs: str = ':{port_num},'.join(
-                    [f'10.10.1.{i}' for i in range(1, server_count + 1)]) + ':{port_num}'
+        for cfg in configs:
+            server_count: int = cfg['server_count']
+            test_name: str = cfg['test_name']
+            data_filepath: str = f'data/{test_name}.csv'
+            addrs: str = ':{port_num},'.join(
+                [f'10.10.1.{i}' for i in range(1, server_count + 1)]) + ':{port_num}'
 
-                processes: List[Popen] = []
-                for i in range(server_count):
-                    server_cmd_fmt: str = ''
-                    match system:
-                        case 'etcd':
-                            server_cmd_fmt = server_cmd.format(i=i)
-                        case 'etcdl':
-                            server_cmd_fmt = server_cmd.format(i=i,
-                                                               j=i + 1,
-                                                               num_operations=cfg['num_operations'] + 100,
-                                                               wal_file_count=cfg['wal_file_count'],
-                                                               peer_addrs=addrs.format(port_num=6900))
-                    processes.append(
-                        exec_wait(f'10.10.1.{i + 1}', server_cmd_fmt, server_target))
+            processes: List[Popen] = []
+            for i in range(server_count):
+                server_cmd_fmt: str = ''
+                match system:
+                    case 'etcd':
+                        server_cmd_fmt = server_cmd.format(i=i)
+                    case 'etcdl':
+                        server_cmd_fmt = server_cmd.format(i=i,
+                                                           j=i + 1,
+                                                           num_operations=cfg['num_operations'] + 100,
+                                                           wal_file_count=cfg['wal_file_count'],
+                                                           peer_addrs=addrs.format(port_num=6900))
+                processes.append(
+                    exec_wait(f'10.10.1.{i + 1}', server_cmd_fmt, server_target))
 
+            try:
                 match system:
                     case 'etcd':
                         client_cmd = client_cmd.format(server_addrs=addrs.format(port_num=2379),
@@ -139,6 +139,5 @@ if __name__ == '__main__':
                                                      p99=p99))
 
                 kill_servers(processes, server_count, clean_cmd)
-
-    except KeyboardInterrupt:
-        kill_servers(processes, server_count, clean_cmd)
+            except KeyboardInterrupt:
+                kill_servers(processes, server_count, clean_cmd)

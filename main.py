@@ -4,7 +4,7 @@ from json import load
 from pathlib import Path
 from re import Pattern
 from re import compile as rcompile
-from subprocess import Popen
+from subprocess import Popen, TimeoutExpired
 from typing import List, NotRequired, TypedDict
 
 from helpers import exec_wait, extract_num, remote_exec_sync

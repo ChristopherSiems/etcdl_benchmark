@@ -16,7 +16,9 @@
       "data_size": 1,
       "num_operations": 10000,
       "read_ratio": 1.0,
-      "num_clients": 5
+      "num_clients": 5,
+      "read_mem": true,
+      "wal_file_count": 1
     }
   ]
 }

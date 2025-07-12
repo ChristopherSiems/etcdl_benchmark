@@ -97,7 +97,7 @@ if __name__ == '__main__':
                         port_num=2379), data_size=cfg['data_size'], num_operations=cfg['num_operations'], read_ratio=cfg['read_ratio'], num_clients=cfg['num_clients'])
                 case 'etcdl':
                     client_cmd = client_cmd.format(server_addrs=addrs.format(port_num=6900), data_size=cfg['data_size'], num_operations=cfg['num_operations'], read_ratio=cfg['read_ratio'], num_clients=cfg['num_clients'],
-                                                   read_mem=cfg['read_mem'])
+                                                   read_mem=str(cfg['read_mem']).lower())
             out: str = remote_exec_sync(
                 f'10.10.1.{server_count + 1}', client_cmd).splitlines()[-1].strip()
             ops: int = extract_num(out, OPS_PATTERN)

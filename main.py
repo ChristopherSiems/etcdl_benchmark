@@ -103,7 +103,7 @@ if __name__ == '__main__':
                                                        read_ratio=cfg['read_ratio'],
                                                        num_clients=cfg['num_clients'])
                     case 'etcdl':
-                        client_cmd = client_cmd.format(server_addrs=addrs.format(port_num=6900),
+                        client_cmd = client_cmd.format(server_addrs=addrs.format(port_num=7000),
                                                        data_size=cfg['data_size'],
                                                        num_operations=cfg['num_operations'],
                                                        read_ratio=cfg['read_ratio'],

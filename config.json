@@ -1,14 +1,5 @@
 {
-  "etcd": [
-    {
-      "test_name": "test1",
-      "server_count": 3,
-      "data_size": 1,
-      "num_operations": 10000,
-      "read_ratio": 1.0,
-      "num_clients": 5
-    }
-  ],
+  "etcd": [],
   "etcdl": [
     {
       "test_name": "test1",

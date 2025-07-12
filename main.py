@@ -70,7 +70,7 @@ if __name__ == '__main__':
                 server_cmd = ETCDL_SERVER_CMD
                 client_cmd = ETCDL_CLIENT_CMD
                 clean_cmd = 'rm -rf /local/go_networking_benchmark/run/*'
-                server_target = 'Trying to connect to peer 1'
+                server_target = 'Trying to connect to peer '
 
         for cfg in configs:
             server_count: int = cfg['server_count']

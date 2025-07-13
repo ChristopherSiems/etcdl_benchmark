@@ -1,4 +1,4 @@
-from typing import List, NotRquired, TypedDict
+from typing import List, NotRequired, TypedDict
 
 
 class ETCDConfig(TypedDict):

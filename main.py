@@ -5,6 +5,7 @@ from pathlib import Path
 from re import Pattern
 from re import compile as rcompile
 from subprocess import Popen, TimeoutExpired, run
+from sys import exit
 from typing import List
 
 from configs import Config
@@ -129,6 +130,7 @@ if __name__ == '__main__':
                 kill_servers(processes, servers, clean_cmd)
             except KeyboardInterrupt:
                 kill_servers(processes, servers, clean_cmd)
+                exit(1)
 
     print('saving data')
     git_interact('add data/*')

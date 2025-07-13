@@ -32,23 +32,23 @@ if __name__ == '__main__':
     vms: List[str] = config.pop('vms')
 
     for system, configs in config.items():
-        server_cmd: str = ''
-        client_cmd: str = ''
-        clean_cmd: str = ''
-        server_target: str = ''
-        match system:
-            case 'etcd':
-                server_cmd = 'cd /local && sh run_etcd{i}.sh'
-                client_cmd = ETCD_CLIENT_CMD
-                clean_cmd = 'rm -rf /local/etcd/storage.etcd'
-                server_target = 'Starting etcd...'
-            case 'etcdl':
-                server_cmd = ETCDL_SERVER_CMD
-                client_cmd = ETCDL_CLIENT_CMD
-                clean_cmd = 'rm -rf /local/go_networking_benchmark/run/*'
-                server_target = 'Trying to connect to peer '
-
         for cfg in configs:
+            server_cmd: str = ''
+            client_cmd: str = ''
+            clean_cmd: str = ''
+            server_target: str = ''
+            match system:
+                case 'etcd':
+                    server_cmd = 'cd /local && sh run_etcd{i}.sh'
+                    client_cmd = ETCD_CLIENT_CMD
+                    clean_cmd = 'rm -rf /local/etcd/storage.etcd'
+                    server_target = 'Starting etcd...'
+                case 'etcdl':
+                    server_cmd = ETCDL_SERVER_CMD
+                    client_cmd = ETCDL_CLIENT_CMD
+                    clean_cmd = 'rm -rf /local/go_networking_benchmark/run/*'
+                    server_target = 'Trying to connect to peer '
+
             server_count: int = cfg['server_count']
             num_dbs: int = config_get(cfg, 'num_dbs')
             num_operations: int = cfg['num_operations']

@@ -7,14 +7,15 @@ from re import compile as rcompile
 from subprocess import Popen, TimeoutExpired, run
 from typing import List, NotRequired, TypedDict
 
-from helpers import exec_wait, extract_num, kill_servers, remote_exec_sync
+from helpers import (config_get, exec_wait, extract_num, git_interact,
+                     kill_servers, remote_exec_sync)
 
 ETCD_CLIENT_CMD: str = 'cd /local/etcd-client && git pull && go build && ./etcd-client -addresses={server_addrs} -data-size={data_size} -num-ops={num_operations} -read-ratio={read_ratio} -num-clients={num_clients}'
-ETCDL_SERVER_CMD: str = 'cd /local/go_networking_benchmark/run && cd .. && git fetch && git checkout dev && git pull && go build && mv networking_benchmark run/ && cd /local/go_networking_benchmark/run && ./networking_benchmark server -num-dbs=5 -max-db-index={num_operations} -node={i} -memory=false -wal-file-count={wal_file_count} -manual=fsync -flags=none -peer-connections=1 -peer-listen="10.10.1.{j}:6900" -client-listen="10.10.1.{j}:7000" -peer-addresses="{peer_addrs}" -fast-path-writes=false'
+ETCDL_SERVER_CMD: str = 'cd /local/go_networking_benchmark/run && cd .. && git fetch && git checkout dev && git pull && go build && mv networking_benchmark run/ && cd /local/go_networking_benchmark/run && ./networking_benchmark server -num-dbs={num_dbs} -max-db-index={db_indices} -node={i} -memory=false -wal-file-count={wal_file_count} -manual=fsync -flags=none -peer-connections=1 -peer-listen="10.10.1.{j}:6900" -client-listen="10.10.1.{j}:7000" -peer-addresses="{peer_addrs}" -fast-path-writes={fast_path_writes}'
 ETCDL_CLIENT_CMD: str = 'cd /local/go_networking_benchmark && git fetch &&  git checkout dev && git pull && go build && ./networking_benchmark client -addresses={server_addrs} -data-size={data_size} -ops={num_operations} -read-ratio={read_ratio} -clients={num_clients} -read-mem={read_mem} -write-mem=false -find-leader=false'
 
-CSV_HEADER: str = 'system,server_count,data_size,read_ratio,num_clients,read_mem,wal_file_count,ops,med,p95,p99\n'
-CSV_ENTRY: str = '{system},{server_count},{data_size},{read_ratio},{num_clients},{read_mem},{wal_file_count},{ops},{med},{p95},{p99}\n'
+CSV_HEADER: str = 'system,server_count,data_size,read_ratio,num_clients,num_dbs,wal_file_count,fast_path_writes,read_mem,ops,med,p95,p99\n'
+CSV_ENTRY: str = '{system},{server_count},{data_size},{read_ratio},{num_clients},{num_dbs},{wal_file_count},{fast_path_writes},{read_mem},{ops},{med},{p95},{p99}\n'
 
 OPS_PATTERN: Pattern = rcompile(r' OPS\(\d+\) ')
 MED_PATTERN: Pattern = rcompile(r' 50th\(\d+\) ')
@@ -40,6 +41,7 @@ class ETCDLConfig(TypedDict):
     num_operations: int
     read_ratio: float
     num_clients: int
+    db_count: int
     read_mem: bool
     wal_file_count: int
 
@@ -74,10 +76,19 @@ if __name__ == '__main__':
 
         for cfg in configs:
             server_count: int = cfg['server_count']
-            test_name: str = cfg['test_name']
-            data_filepath: str = f'data/{test_name}.csv'
+            num_dbs: int = cfg['num_dbs']
+            num_operations: int = cfg['num_operations']
+            wal_file_count: int = config_get(cfg, 'wal_file_count')
             addrs: str = ':{port_num},'.join(
                 [f'10.10.1.{i}' for i in range(1, server_count + 1)]) + ':{port_num}'
+            fast_path_writes: str = config_get(cfg, 'fast_path_writes')
+            data_size: int = cfg['data_size']
+            num_operations: int = cfg['num_operations']
+            read_ratio: float = cfg['read_ratio']
+            num_clients: int = cfg['num_clients']
+            read_mem: str = config_get(cfg, 'read_mem')
+            test_name: str = cfg['test_name']
+            data_filepath: str = f'data/{test_name}.csv'
 
             processes: List[Popen] = []
             for i in range(server_count):
@@ -86,11 +97,14 @@ if __name__ == '__main__':
                     case 'etcd':
                         server_cmd_fmt = server_cmd.format(i=i)
                     case 'etcdl':
-                        server_cmd_fmt = server_cmd.format(i=i,
+                        server_cmd_fmt = server_cmd.format(num_dbs=num_dbs,
+                                                           db_indices=num_operations + 100,
+                                                           i=i,
+                                                           wal_file_count=wal_file_count,
                                                            j=i + 1,
-                                                           num_operations=cfg['num_operations'] + 100,
-                                                           wal_file_count=cfg['wal_file_count'],
-                                                           peer_addrs=addrs.format(port_num=6900))
+                                                           peer_addrs=addrs.format(
+                                                               port_num=6900),
+                                                           fast_path_writes=fast_path_writes)
                 processes.append(
                     exec_wait(f'10.10.1.{i + 1}', server_cmd_fmt, server_target))
 
@@ -98,17 +112,17 @@ if __name__ == '__main__':
                 match system:
                     case 'etcd':
                         client_cmd = client_cmd.format(server_addrs=addrs.format(port_num=2379),
-                                                       data_size=cfg['data_size'],
-                                                       num_operations=cfg['num_operations'],
-                                                       read_ratio=cfg['read_ratio'],
-                                                       num_clients=cfg['num_clients'])
+                                                       data_size=data_size,
+                                                       num_operations=num_operations,
+                                                       read_ratio=read_ratio,
+                                                       num_clients=num_clients)
                     case 'etcdl':
                         client_cmd = client_cmd.format(server_addrs=addrs.format(port_num=7000),
-                                                       data_size=cfg['data_size'],
-                                                       num_operations=cfg['num_operations'],
-                                                       read_ratio=cfg['read_ratio'],
-                                                       num_clients=cfg['num_clients'],
-                                                       read_mem=str(cfg['read_mem']).lower())
+                                                       data_size=data_size,
+                                                       num_operations=num_operations,
+                                                       read_ratio=read_ratio,
+                                                       num_clients=num_clients,
+                                                       read_mem=read_mem)
                 out: str = remote_exec_sync(
                     f'10.10.1.{server_count + 1}', client_cmd).splitlines()[-1].strip()
                 ops: int = extract_num(out, OPS_PATTERN)
@@ -126,13 +140,13 @@ if __name__ == '__main__':
                 with open(data_filepath, 'a', encoding='utf-8') as data_file:
                     data_file.write(CSV_ENTRY.format(system=system,
                                                      server_count=server_count,
-                                                     data_size=cfg['data_size'],
-                                                     read_ratio=cfg['read_ratio'],
-                                                     num_clients=cfg['num_clients'],
-                                                     read_mem=cfg.get(
-                                                         'read_mem', ''),
-                                                     wal_file_count=cfg.get(
-                                                         'wal_file_count', ''),
+                                                     data_size=data_size,
+                                                     read_ratio=read_ratio,
+                                                     num_clients=num_clients,
+                                                     num_dbs=num_dbs,
+                                                     wal_file_count=wal_file_count,
+                                                     fast_path_writes=fast_path_writes,
+                                                     read_mem=read_mem,
                                                      ops=ops,
                                                      med=med,
                                                      p95=p95,
@@ -143,7 +157,6 @@ if __name__ == '__main__':
                 kill_servers(processes, server_count, clean_cmd)
 
     print('saving data')
-    run(['sudo', 'git', 'add', 'data/*'], stdout=PIPE, stderr=PIPE, text=True)
-    run(['sudo', 'git', 'commit', '-m', '"data update"'],
-        stdout=PIPE, stderr=PIPE, text=True)
-    run(['sudo', 'git', 'push'], stdout=PIPE, stderr=PIPE, text=True)
+    git_interact('add data/*')
+    git_interact('commit -m "data update"')
+    git_interact('push')

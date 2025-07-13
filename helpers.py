@@ -9,6 +9,23 @@ ADDR: str = 'root@{addr}'
 CMD: str = 'PATH=$PATH:/usr/local/go/bin && {cmd}'
 
 
+def config_get(config: ETCDLConfig, key: str) -> int | str:
+    '''
+    get the value from a key in a config object and return an empty string if the key does not exist
+    :param config: the config object
+    :type config: ETCDLConfig
+    :param key: the key
+    :type key: str
+    :returns: the value of the key in the config
+    :rtype: int | str
+    '''
+
+    val: int | bool = config.get(key, '')
+    if isinstance(val, bool):
+        return str(val).lower()
+    return val
+
+
 def exec_print(addr: str, cmd: str) -> None:
     '''
     prints the command and IP address given in a shell-like format
@@ -19,6 +36,28 @@ def exec_print(addr: str, cmd: str) -> None:
     '''
 
     print(f'{addr}$ {cmd}')
+
+
+def exec_wait(addr: str, cmd: str, target: str) -> Popen:
+    '''
+    execute a given command on an addressed computer, then wait for a specific
+    output from the process
+    :param addr: the IP address of the computer to execute on
+    :type addr: str
+    :param cmd: the command to execute
+    :type cmd: str
+    :param target: the output to look for
+    :type target: str
+    :returns: the running process
+    :rtype: Popen
+    '''
+
+    exec_print(addr, cmd)
+    process: Popen = Popen(
+        SSH_KWS + [ADDR.format(addr=addr), CMD.format(cmd=cmd)], stdout=PIPE, stderr=PIPE, text=True)
+    while True:
+        if target in process.stdout.readline():
+            return process
 
 
 def extract_num(txt: str, pattern: Pattern) -> int:
@@ -33,6 +72,17 @@ def extract_num(txt: str, pattern: Pattern) -> int:
     '''
 
     return int(findall(rcompile(r'\d+'), findall(pattern, txt)[0])[-1])
+
+
+def git_interact(cmd: str) -> None:
+    '''
+    executes git command
+    :param cmd: the git command
+    :type cmd: str
+    '''
+
+    print(f'$ git {cmd}')
+    run(['sudo', 'git', cmd], stdout=PIPE, stderr=PIPE, text=True)
 
 
 def kill_servers(processes: List[Popen], server_count: int, clean_cmd: str) -> None:
@@ -59,21 +109,6 @@ def kill_servers(processes: List[Popen], server_count: int, clean_cmd: str) -> N
         remote_exec_sync(f'10.10.1.{i + 1}', clean_cmd)
 
 
-def remote_exec(addr: str, cmd: str) -> Popen:
-    '''
-    execute a given command on an addressed computer
-    :param addr: the IP address of the computer to execute on
-    :type addr: str
-    :param cmd: the command to execute
-    :type cmd: str
-    :returns: the process being executed
-    :rtype: Popen
-    '''
-
-    exec_print(addr, cmd)
-    return Popen(SSH_KWS + [ADDR.format(addr=addr), CMD.format(cmd=cmd)], stdout=PIPE, stderr=PIPE, text=True)
-
-
 def remote_exec_sync(addr: str, cmd: str) -> str:
     '''
     execute a given command on an addressed computer and wait for it to
@@ -90,36 +125,3 @@ def remote_exec_sync(addr: str, cmd: str) -> str:
     out: str = run(SSH_KWS + [ADDR.format(addr=addr), CMD.format(cmd=cmd)],
                    stdout=PIPE, stderr=PIPE, text=True).stdout
     return out
-
-
-def wait_output(process: Popen, target: str) -> None:
-    '''
-    wait for a specific output from a process
-    :param process: the running process
-    :type process: Popen
-    :param target: the output to look for
-    :type target: str
-    '''
-
-    while True:
-        if target in process.stdout.readline():
-            return
-
-
-def exec_wait(addr: str, cmd: str, target: str) -> Popen:
-    '''
-    execute a given command on an addressed computer, then wait for a specific
-    output from the process
-    :param addr: the IP address of the computer to execute on
-    :type addr: str
-    :param cmd: the command to execute
-    :type cmd: str
-    :param target: the output to look for
-    :type target: str
-    :returns: the running process
-    :rtype: Popen
-    '''
-
-    process: Popen = remote_exec(addr, cmd)
-    wait_output(process, target)
-    return process

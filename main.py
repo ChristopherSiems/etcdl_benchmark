@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
         for cfg in configs:
             server_count: int = cfg['server_count']
-            num_dbs: int = cfg['num_dbs']
+            num_dbs: int = config_get(cfg, 'num_dbs')
             num_operations: int = cfg['num_operations']
             wal_file_count: int = config_get(cfg, 'wal_file_count')
             addrs: str = ':{port_num},'.join(

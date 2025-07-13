@@ -4,7 +4,7 @@ from json import load
 from pathlib import Path
 from re import Pattern
 from re import compile as rcompile
-from subprocess import Popen, TimeoutExpired
+from subprocess import Popen, TimeoutExpired, run
 from typing import List, NotRequired, TypedDict
 
 from helpers import exec_wait, extract_num, kill_servers, remote_exec_sync
@@ -141,3 +141,9 @@ if __name__ == '__main__':
                 kill_servers(processes, server_count, clean_cmd)
             except KeyboardInterrupt:
                 kill_servers(processes, server_count, clean_cmd)
+
+    print('saving data')
+    run(['sudo', 'git', 'add', 'data/*'], stdout=PIPE, stderr=PIPE, text=True)
+    run(['sudo', 'git', 'commit', '-m', '"data update"'],
+        stdout=PIPE, stderr=PIPE, text=True)
+    run(['sudo', 'git', 'push'], stdout=PIPE, stderr=PIPE, text=True)

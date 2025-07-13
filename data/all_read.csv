@@ -1,0 +1,4 @@
+system,server_count,data_size,read_ratio,num_clients,num_dbs,wal_file_count,fast_path_writes,read_mem,ops,med,p95,p99
+etcd,3,1000,1.0,33,,,,,94152,769,1242,3080
+etcd,3,10000,1.0,33,,,,,72351,805,1381,16526
+etcd,3,100000,1.0,33,,,,,17678,1308,3107,6395

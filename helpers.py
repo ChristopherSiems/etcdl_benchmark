@@ -4,6 +4,8 @@ from re import findall
 from subprocess import PIPE, Popen, TimeoutExpired, run
 from typing import List
 
+from configs import ETCDLConfig
+
 SSH_KWS: List[str] = ['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no']
 ADDR: str = 'root@{addr}'
 CMD: str = 'PATH=$PATH:/usr/local/go/bin && {cmd}'

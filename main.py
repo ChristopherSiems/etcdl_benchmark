@@ -5,8 +5,9 @@ from pathlib import Path
 from re import Pattern
 from re import compile as rcompile
 from subprocess import Popen, TimeoutExpired, run
-from typing import List, NotRequired, TypedDict
+from typing import List
 
+from configs import Config
 from helpers import (config_get, exec_wait, extract_num, git_interact,
                      kill_servers, remote_exec_sync)
 
@@ -21,35 +22,6 @@ OPS_PATTERN: Pattern = rcompile(r' OPS\(\d+\) ')
 MED_PATTERN: Pattern = rcompile(r' 50th\(\d+\) ')
 P95_PATTERN: Pattern = rcompile(r' 95th\(\d+\) ')
 P99_PATTERN: Pattern = rcompile(r' 99th\(\d+\) ')
-
-
-class ETCDConfig(TypedDict):
-    '''type for etcd benchmark config'''
-    server_count: NotRequired[int]
-    test_name: NotRequired[str]
-    data_size: int
-    num_operations: int
-    read_ratio: float
-    num_clients: int
-
-
-class ETCDLConfig(TypedDict):
-    '''type for etcd-light benchmark config'''
-    server_count: NotRequired[int]
-    test_name: NotRequired[str]
-    data_size: int
-    num_operations: int
-    read_ratio: float
-    num_clients: int
-    db_count: int
-    read_mem: bool
-    wal_file_count: int
-
-
-class Config(TypedDict):
-    '''type for etcd and etcd-light benchmark config'''
-    etcd: List[ETCDConfig]
-    etcdl: List[ETCDLConfig]
 
 
 if __name__ == '__main__':

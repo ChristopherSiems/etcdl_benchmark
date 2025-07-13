@@ -26,5 +26,6 @@ class ETCDLConfig(TypedDict):
 
 class Config(TypedDict):
     '''type for etcd and etcd-light benchmark config'''
+    vms: List[str]
     etcd: List[ETCDConfig]
     etcdl: List[ETCDLConfig]

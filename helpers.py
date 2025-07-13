@@ -7,7 +7,7 @@ from typing import List
 from configs import ETCDLConfig
 
 SSH_KWS: List[str] = ['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no']
-ADDR: str = 'root@{addr}'
+ADDR: str = 'root@{addr}.utah.cloudlab.us'
 CMD: str = 'PATH=$PATH:/usr/local/go/bin && {cmd}'
 
 
@@ -44,7 +44,7 @@ def exec_wait(addr: str, cmd: str, target: str) -> Popen:
     '''
     execute a given command on an addressed computer, then wait for a specific
     output from the process
-    :param addr: the IP address of the computer to execute on
+    :param addr: the name of the server
     :type addr: str
     :param cmd: the command to execute
     :type cmd: str
@@ -87,13 +87,13 @@ def git_interact(cmd: str) -> None:
     run(['sudo', 'git', cmd], stdout=PIPE, stderr=PIPE, text=True)
 
 
-def kill_servers(processes: List[Popen], server_count: int, clean_cmd: str) -> None:
+def kill_servers(processes: List[Popen], servers: List[str], clean_cmd: str) -> None:
     '''
     kill running servers and remove stored data
     :param processes: the server processes
     :type: processes: List[Popen]
-    :param server_count: the number of servers
-    :type server_count: int
+    :param servers: the number of servers
+    :type servers: List[str]
     :param clean_cmd: the command to clean stored data
     :type clean_cmd: str
     '''
@@ -107,15 +107,15 @@ def kill_servers(processes: List[Popen], server_count: int, clean_cmd: str) -> N
             process.kill()
             process.wait()
 
-    for i in range(server_count):
-        remote_exec_sync(f'10.10.1.{i + 1}', clean_cmd)
+    for vm in servers:
+        remote_exec_sync(vm, clean_cmd)
 
 
 def remote_exec_sync(addr: str, cmd: str) -> str:
     '''
     execute a given command on an addressed computer and wait for it to
     complete
-    :param addr: the IP address of the computer to execute on
+    :param addr: the name of the server
     :type addr: str
     :param cmd: the command to execute
     :type cmd: str

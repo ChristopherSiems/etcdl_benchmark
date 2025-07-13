@@ -1,4 +1,11 @@
 {
+  "vms": [
+    "amd257",
+    "amd272",
+    "amd279",
+    "amd275",
+    "amd261"
+  ],
   "etcd": [
     {
       "test_name": "all_read",

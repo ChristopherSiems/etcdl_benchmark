@@ -25,9 +25,10 @@ P99_PATTERN: Pattern = rcompile(r' 99th\(\d+\) ')
 
 
 if __name__ == '__main__':
-    config: Config = {'etcd': [], 'etcdl': []}
+    config: Config = {'vms': [], 'etcd': [], 'etcdl': []}
     with open('config.json', encoding='utf-8') as config_file:
         config = load(config_file)
+    vms: List[str] = config.pop('vms')
 
     for system, configs in config.items():
         server_cmd: str = ''
@@ -59,11 +60,13 @@ if __name__ == '__main__':
             read_ratio: float = cfg['read_ratio']
             num_clients: int = cfg['num_clients']
             read_mem: str = config_get(cfg, 'read_mem')
+            servers: List[str] = vms[:server_count]
+            client: str = vms[-1]
             test_name: str = cfg['test_name']
             data_filepath: str = f'data/{test_name}.csv'
 
             processes: List[Popen] = []
-            for i in range(server_count):
+            for i, vm in zip(range(server_count), servers):
                 server_cmd_fmt: str = ''
                 match system:
                     case 'etcd':
@@ -77,8 +80,7 @@ if __name__ == '__main__':
                                                            peer_addrs=addrs.format(
                                                                port_num=6900),
                                                            fast_path_writes=fast_path_writes)
-                processes.append(
-                    exec_wait(f'10.10.1.{i + 1}', server_cmd_fmt, server_target))
+                processes.append(exec_wait(vm, server_cmd_fmt, server_target))
 
             try:
                 match system:
@@ -96,7 +98,7 @@ if __name__ == '__main__':
                                                        num_clients=num_clients,
                                                        read_mem=read_mem)
                 out: str = remote_exec_sync(
-                    f'10.10.1.{server_count + 1}', client_cmd).splitlines()[-1].strip()
+                    client, client_cmd).splitlines()[-1].strip()
                 ops: int = extract_num(out, OPS_PATTERN)
                 med: int = extract_num(out, MED_PATTERN)
                 p95: int = extract_num(out, P95_PATTERN)
@@ -124,9 +126,9 @@ if __name__ == '__main__':
                                                      p95=p95,
                                                      p99=p99))
 
-                kill_servers(processes, server_count, clean_cmd)
+                kill_servers(processes, servers, clean_cmd)
             except KeyboardInterrupt:
-                kill_servers(processes, server_count, clean_cmd)
+                kill_servers(processes, servers, clean_cmd)
 
     print('saving data')
     git_interact('add data/*')

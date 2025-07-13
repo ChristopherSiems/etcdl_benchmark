@@ -8,7 +8,7 @@ from configs import ETCDLConfig
 
 SSH_KWS: List[str] = ['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no']
 ADDR: str = 'root@{addr}.utah.cloudlab.us'
-CMD: str = '"stdbuf -oL -eL bash -c \'PATH=$PATH:/usr/local/go/bin && {cmd}\'"'
+CMD: str = '"stdbuf -oL -eL bash -c \'export PATH=$PATH:/usr/local/go/bin && {cmd}\'"'
 
 
 def config_get(config: ETCDLConfig, key: str) -> int | str:

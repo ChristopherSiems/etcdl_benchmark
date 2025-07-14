@@ -300,6 +300,6 @@
       "num_dbs": 5,
       "wal_file_count": 10,
       "fast_path_writes": true
-    },
+    }
   ]
 }

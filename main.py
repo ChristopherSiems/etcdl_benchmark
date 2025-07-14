@@ -67,7 +67,7 @@ if __name__ == '__main__':
                 server_cmd_fmt: str = ''
                 match system:
                     case 'etcd':
-                        server_cmd_fmt = server_cmd.format(node_num=server)
+                        server_cmd_fmt = server_cmd.format(node_num=i)
                     case 'etcdl':
                         server_cmd_fmt = server_cmd.format(num_dbs=num_dbs,
                                                            db_indices=num_operations + 100,

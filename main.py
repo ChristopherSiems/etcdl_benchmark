@@ -41,7 +41,7 @@ if __name__ == '__main__':
             servers: list[str] = []
             match system:
                 case 'etcd':
-                    server_cmd = 'cd /local && sh run_etcd{node_num}.sh'
+                    server_cmd = '(PATH=/usr/local/go/bin:$PATH && cd /local && sh run_etcd{node_num}.sh)'
                     client_cmd = ETCD_CLIENT_CMD
                     server_target = 'Starting etcd...'
                     servers = ['10.10.1.1', '10.10.1.2', '10.10.1.3']

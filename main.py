@@ -6,18 +6,18 @@ from re import Pattern
 from re import compile as rcompile
 from subprocess import Popen, TimeoutExpired, run
 from sys import exit
-from typing import List
+from typing import list
 
-from configs import Config
+from configs import ClusterConfig, Config
 from helpers import (config_get, exec_wait, extract_num, git_interact,
                      kill_servers, remote_exec_sync)
 
 ETCD_CLIENT_CMD: str = 'cd /local/etcd-client && git pull && go build && ./etcd-client -addresses={server_addrs} -data-size={data_size} -num-ops={num_operations} -read-ratio={read_ratio} -num-clients={num_clients}'
-ETCDL_SERVER_CMD: str = 'cd /local/go_networking_benchmark/run && cd .. && git fetch && git checkout dev && git pull && go build && mv networking_benchmark run/ && cd /local/go_networking_benchmark/run && ./networking_benchmark server -num-dbs={num_dbs} -max-db-index={db_indices} -node={i} -memory=false -wal-file-count={wal_file_count} -manual=fsync -flags=none -peer-connections=1 -peer-listen="10.10.1.{j}:6900" -client-listen="10.10.1.{j}:7000" -peer-addresses="{peer_addrs}" -fast-path-writes={fast_path_writes}'
-ETCDL_CLIENT_CMD: str = 'cd /local/go_networking_benchmark && git fetch &&  git checkout dev && git pull && go build && ./networking_benchmark client -addresses={server_addrs} -data-size={data_size} -ops={num_operations} -read-ratio={read_ratio} -clients={num_clients} -read-mem={read_mem} -write-mem=false -find-leader=false'
+ETCDL_SERVER_CMD: str = 'PATH=\$PATH:/usr/local/go/bin; cd /local/go_networking_benchmark/run && cd .. && git fetch && git checkout dev && git pull && go build && mv networking_benchmark run/ && cd /local/go_networking_benchmark/run && ./networking_benchmark server -num-dbs={num_dbs} -max-db-index={db_indices) -node={node_num} -memory=false -wal-file-count={wal_file_count} -manual=fsync -flags=none -peer-connections=1 -peer-listen="10.10.1.{ip_num}:6900" -client-listen="10.10.1.{ip_num}:7000" -peer-addresses="{peer_addrs}" -fast-path-writes={fast_path_writes}'
+ETCDL_CLIENT_CMD: str = 'cd /local/go_networking_benchmark && git fetch && git checkout dev && git pull && go build && ./networking_benchmark client -addresses={server_addrs} -data-size={data_size} -ops={num_operations} -read-ratio={read_ratio} -clients={num_clients} -read-mem=false -write-mem=false -find-leader=false'
 
-CSV_HEADER: str = 'system,server_count,data_size,read_ratio,num_clients,num_dbs,wal_file_count,fast_path_writes,read_mem,ops,med,p95,p99\n'
-CSV_ENTRY: str = '{system},{server_count},{data_size},{read_ratio},{num_clients},{num_dbs},{wal_file_count},{fast_path_writes},{read_mem},{ops},{med},{p95},{p99}\n'
+CSV_HEADER: str = 'system,server_count,data_size,read_ratio,num_clients,num_dbs,wal_file_count,fast_path_writes,ops,med,p95,p99\n'
+CSV_ENTRY: str = '{system},{server_count},{data_size},{read_ratio},{num_clients},{num_dbs},{wal_file_count},{fast_path_writes},{ops},{med},{p95},{p99}\n'
 
 OPS_PATTERN: Pattern = rcompile(r' OPS\(\d+\) ')
 MED_PATTERN: Pattern = rcompile(r' 50th\(\d+\) ')
@@ -26,10 +26,11 @@ P99_PATTERN: Pattern = rcompile(r' 99th\(\d+\) ')
 
 
 if __name__ == '__main__':
-    config: Config = {'vms': [], 'etcd': [], 'etcdl': []}
+    config: Config = {'cluster': {'servers': [],
+                                  'client': None}, 'etcd': [], 'etcdl': []}
     with open('config.json', encoding='utf-8') as config_file:
         config = load(config_file)
-    vms: List[str] = config.pop('vms')
+    cluster: ClusterConfig = config.pop('cluster')
 
     for system, configs in config.items():
         for cfg in configs:
@@ -39,7 +40,7 @@ if __name__ == '__main__':
             server_target: str = ''
             match system:
                 case 'etcd':
-                    server_cmd = 'cd /local && sh run_etcd{i}.sh'
+                    server_cmd = 'cd /local && sh run_etcd{node_num}.sh'
                     client_cmd = ETCD_CLIENT_CMD
                     clean_cmd = 'rm -rf /local/etcd/storage.etcd'
                     server_target = 'Starting etcd...'
@@ -49,39 +50,43 @@ if __name__ == '__main__':
                     clean_cmd = 'rm -rf /local/go_networking_benchmark/run/*'
                     server_target = 'Trying to connect to peer '
 
-            server_count: int = cfg['server_count']
-            num_dbs: int = config_get(cfg, 'num_dbs')
             num_operations: int = cfg['num_operations']
-            wal_file_count: int = config_get(cfg, 'wal_file_count')
-            addrs: str = ':{port_num},'.join(
-                [f'10.10.1.{i}' for i in range(1, server_count + 1)]) + ':{port_num}'
-            fast_path_writes: str = config_get(cfg, 'fast_path_writes')
             data_size: int = cfg['data_size']
-            num_operations: int = cfg['num_operations']
             read_ratio: float = cfg['read_ratio']
             num_clients: int = cfg['num_clients']
-            read_mem: str = config_get(cfg, 'read_mem')
-            servers: List[str] = vms[:server_count]
-            client: str = vms[-1]
             test_name: str = cfg['test_name']
+
+            num_dbs: int = config_get(cfg, 'num_dbs')
+            wal_file_count: int = config_get(cfg, 'wal_file_count')
+            fast_path_writes: str = config_get(cfg, 'fast_path_writes')
+
+            servers: list[int] = cluster['servers']
+            server_count: int = len(servers)
+            addrs: str = ':{port_num},'.join(
+                [f'10.10.1.{server}' for server in servers]) + ':{port_num}'
             data_filepath: str = f'data/{test_name}.csv'
 
-            processes: List[Popen] = []
-            for i, vm in zip(range(server_count), servers):
+            processes: list[Popen] = []
+            pids: list[str] = []
+            for server in servers:
                 server_cmd_fmt: str = ''
                 match system:
                     case 'etcd':
-                        server_cmd_fmt = server_cmd.format(i=i)
+                        server_cmd_fmt = server_cmd.format(node_num=server)
                     case 'etcdl':
                         server_cmd_fmt = server_cmd.format(num_dbs=num_dbs,
                                                            db_indices=num_operations + 100,
-                                                           i=i,
+                                                           node_num=server,
                                                            wal_file_count=wal_file_count,
-                                                           j=i + 1,
+                                                           ip_num=server + 1,
                                                            peer_addrs=addrs.format(
                                                                port_num=6900),
                                                            fast_path_writes=fast_path_writes)
-                processes.append(exec_wait(vm, server_cmd_fmt, server_target))
+                process: Popen
+                pid: str
+                process, pid = exec_wait(server, server_cmd_fmt, server_target)
+                process.append(process)
+                pids.append(pid)
 
             try:
                 match system:
@@ -96,10 +101,9 @@ if __name__ == '__main__':
                                                        data_size=data_size,
                                                        num_operations=num_operations,
                                                        read_ratio=read_ratio,
-                                                       num_clients=num_clients,
-                                                       read_mem=read_mem)
+                                                       num_clients=num_clients)
                 out: str = remote_exec_sync(
-                    client, client_cmd).splitlines()[-1].strip()
+                    cluster['client'], client_cmd).splitlines()[-1].strip()
                 ops: int = extract_num(out, OPS_PATTERN)
                 med: int = extract_num(out, MED_PATTERN)
                 p95: int = extract_num(out, P95_PATTERN)
@@ -121,15 +125,14 @@ if __name__ == '__main__':
                                                      num_dbs=num_dbs,
                                                      wal_file_count=wal_file_count,
                                                      fast_path_writes=fast_path_writes,
-                                                     read_mem=read_mem,
                                                      ops=ops,
                                                      med=med,
                                                      p95=p95,
                                                      p99=p99))
 
-                kill_servers(processes, servers, clean_cmd)
+                kill_servers(processes, pids, servers, clean_cmd)
             except KeyboardInterrupt:
-                kill_servers(processes, servers, clean_cmd)
+                kill_servers(processes, pids, servers, clean_cmd)
                 exit(1)
 
     print('saving data')

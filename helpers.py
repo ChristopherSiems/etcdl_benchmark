@@ -2,13 +2,12 @@ from re import Pattern
 from re import compile as rcompile
 from re import findall
 from subprocess import PIPE, Popen, TimeoutExpired, run
-from typing import List
 
 from configs import ETCDLConfig
 
-SSH_KWS: List[str] = ['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no']
-ADDR: str = 'root@{addr}.utah.cloudlab.us'
-CMD: str = '"stdbuf -oL -eL bash -c \'export PATH=$PATH:/usr/local/go/bin && {cmd}\'"'
+SSH_KWS: list[str] = ['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no']
+ADDR: str = 'root@10.10.1.{addr}'
+CMD: str = '\'stdbuf -oL -eL bash -c "echo \$\$; {cmd}"\''
 
 
 def config_get(config: ETCDLConfig, key: str) -> int | str:
@@ -40,12 +39,12 @@ def exec_print(addr: str, cmd: str) -> None:
     print(f'{addr}$ {cmd}')
 
 
-def exec_wait(addr: str, cmd: str, target: str) -> Popen:
+def exec_wait(addr: int, cmd: str, target: str) -> tuple[Popen, str]:
     '''
     execute a given command on an addressed computer, then wait for a specific
     output from the process
-    :param addr: the name of the server
-    :type addr: str
+    :param addr: the final digit of the IP address of the server
+    :type addr: int 
     :param cmd: the command to execute
     :type cmd: str
     :param target: the output to look for
@@ -57,9 +56,10 @@ def exec_wait(addr: str, cmd: str, target: str) -> Popen:
     exec_print(addr, cmd)
     process: Popen = Popen(
         SSH_KWS + [ADDR.format(addr=addr), CMD.format(cmd=cmd)], stdout=PIPE, stderr=PIPE, text=True)
+    pid: str = process.stdout.readline().strip()
     while True:
         if target in process.stdout.readline():
-            return process
+            return process, pid
 
 
 def extract_num(txt: str, pattern: Pattern) -> int:
@@ -87,36 +87,31 @@ def git_interact(cmd: str) -> None:
     run(['sudo', 'git', cmd], stdout=PIPE, stderr=PIPE, text=True)
 
 
-def kill_servers(processes: List[Popen], servers: List[str], clean_cmd: str) -> None:
+def kill_servers(processes: list[Popen], pids: list[str], servers: list[int], clean_cmd: str) -> None:
     '''
     kill running servers and remove stored data
     :param processes: the server processes
-    :type: processes: List[Popen]
+    :type: processes: list[Popen]
     :param servers: the number of servers
-    :type servers: List[str]
+    :type servers: list[str]
     :param clean_cmd: the command to clean stored data
     :type clean_cmd: str
     '''
 
     print('terminating servers')
-    for process in processes:
-        process.terminate()
-        try:
-            process.wait(timeout=15)
-        except TimeoutExpired:
-            process.kill()
-            process.wait()
+    for process, pid, server in zip(processes, pids, servers):
+        process.kill()
+        process.wait()
 
-    for vm in servers:
-        remote_exec_sync(vm, clean_cmd)
+        remote_exec_sync(server, f'"kill -TERM -{pid}"')
+        remote_exec_sync(server, clean_cmd)
 
 
 def remote_exec_sync(addr: str, cmd: str) -> str:
     '''
-    execute a given command on an addressed computer and wait for it to
-    complete
-    :param addr: the name of the server
-    :type addr: str
+    execute a given command on an addressed computer and wait for it to complete
+    :param addr: the final digit of the IP address of the server
+    :type addr: int 
     :param cmd: the command to execute
     :type cmd: str
     :returns: the output of the command

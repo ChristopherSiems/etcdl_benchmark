@@ -1,9 +1,14 @@
-from typing import List, NotRequired, TypedDict
+from typing import NotRequired, TypedDict
+
+
+class ClusterConfig(TypedDict):
+    '''type for cluster configuration'''
+    servers: list[int]
+    client: int
 
 
 class ETCDConfig(TypedDict):
     '''type for etcd benchmark config'''
-    server_count: NotRequired[int]
     test_name: NotRequired[str]
     data_size: int
     num_operations: int
@@ -13,7 +18,6 @@ class ETCDConfig(TypedDict):
 
 class ETCDLConfig(TypedDict):
     '''type for etcd-light benchmark config'''
-    server_count: NotRequired[int]
     test_name: NotRequired[str]
     data_size: int
     num_operations: int
@@ -26,6 +30,6 @@ class ETCDLConfig(TypedDict):
 
 class Config(TypedDict):
     '''type for etcd and etcd-light benchmark config'''
-    vms: List[str]
-    etcd: List[ETCDConfig]
-    etcdl: List[ETCDLConfig]
+    cluster: ClusterConfig
+    etcd: list[ETCDConfig]
+    etcdl: list[ETCDLConfig]

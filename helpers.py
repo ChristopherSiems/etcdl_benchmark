@@ -59,7 +59,7 @@ def exec_wait(addr: int, cmd: str, target: str) -> Popen:
     addr_fmt: str = ADDR.format(addr=addr)
     exec_print(addr_fmt, cmd)
     process: Popen = Popen(
-        SSH_KWS + [addr_fmt, CMD.format(cmd=cmd)] stdout=PIPE, text=True)
+        SSH_KWS + [addr_fmt, CMD.format(cmd=cmd)], stdout=PIPE, text=True)
     while True:
         if target in process.stdout.readline():
             return process

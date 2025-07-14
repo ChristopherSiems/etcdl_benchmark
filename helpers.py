@@ -149,4 +149,5 @@ def remote_exec_sync(addr: str, cmd: str) -> str:
     '''
     addr_fmt: str = ADDR.format(addr=addr)
     exec_print(addr_fmt, cmd)
-    return run(SSH_KWS + [addr_fmt, CMD.format(cmd=cmd)], stdout=PIPE, stderr=PIPE, text=True).stdout
+    print(SSH_KWS + [addr_fmt, CMD.format(cmd=cmd)])
+    return run(SSH_KWS + [addr_fmt, CMD.format(cmd=cmd)], stdout=PIPE, text=True).stdout

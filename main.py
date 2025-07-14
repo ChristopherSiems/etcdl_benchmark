@@ -72,7 +72,6 @@ if __name__ == '__main__':
                 [f'10.10.1.{server}' for server in servers]) + ':{port_num}'
 
             processes: list[Popen] = []
-            pids: list[str] = []
             for i, server in enumerate(servers):
                 server_cmd_fmt: str = ''
                 match system:
@@ -87,7 +86,7 @@ if __name__ == '__main__':
                                                            peer_addrs=addrs.format(
                                                                port_num=6900),
                                                            fast_path_writes=fast_path_writes)
-                process.append(
+                processes.append(
                     exec_wait(server + 1, server_cmd_fmt, server_target))
 
             try:

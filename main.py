@@ -43,7 +43,7 @@ if __name__ == '__main__':
             server_count: int = len(cluster_servers)
             match system:
                 case 'etcd':
-                    server_cmd = 'export PATH=/usr/local/go/bin:\\$PATH && cd /local && sh run_etcd{node_num}.sh'
+                    server_cmd = 'cd /local && sh run_etcd{node_num}.sh'
                     client_cmd = ETCD_CLIENT_CMD
                     clean_cmd = 'rm -rf /local/etcd/storage.etcd'
                     server_target = 'Starting etcd...'

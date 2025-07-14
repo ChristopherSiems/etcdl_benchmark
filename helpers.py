@@ -4,6 +4,7 @@ from re import Pattern
 from re import compile as rcompile
 from re import findall
 from subprocess import PIPE, Popen, run
+from time import sleep
 
 from configs import ETCDLConfig
 
@@ -58,7 +59,8 @@ def exec_wait(addr: int, cmd: str, target: str) -> Popen:
     addr_fmt: str = ADDR.format(addr=addr)
     exec_print(addr_fmt, cmd)
     process: Popen = Popen(
-        SSH_KWS + [addr_fmt, CMD.format(cmd=cmd)], stdout=PIPE, stderr=PIPE, text=True)
+        SSH_KWS + [addr_fmt, CMD.format(cmd=cmd)], stderr=PIPE, text=True)
+    sleep(10)
     while True:
         if target in process.stdout.readline():
             return process

@@ -1,6 +1,6 @@
 '''helper functions'''
 
-from os.environ import copy
+from os import environ
 from re import Pattern
 from re import compile as rcompile
 from re import findall
@@ -56,7 +56,7 @@ def exec_wait(addr: int, cmd: str, target: str) -> Popen:
     :rtype: Popen
     '''
 
-    env: dict[str, str] = copy()
+    env: dict[str, str] = environ.copy()
     env['PATH'] = env['PATH'] + ':/usr/local/go/bin'
     addr_fmt: str = ADDR.format(addr=addr)
     exec_print(addr_fmt, cmd)

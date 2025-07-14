@@ -9,7 +9,7 @@ from subprocess import PIPE, Popen, run
 from configs import ETCDLConfig
 
 SSH_KWS: list[str] = ['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no']
-ADDR: str = 'root@10.10.1.{addr}'
+ADDR: str = 'root@{addr}'
 CMD: str = '{cmd}'
 
 
@@ -42,12 +42,12 @@ def exec_print(addr: str, cmd: str) -> None:
     print(f'{addr}$ {cmd}')
 
 
-def exec_wait(addr: int, cmd: str, target: str) -> Popen:
+def exec_wait(addr: str, cmd: str, target: str) -> Popen:
     '''
     execute a given command on an addressed computer, then wait for a specific
     output from the process
-    :param addr: the final digit of the IP address of the server
-    :type addr: int 
+    :param addr: IP address of the computer 
+    :type addr: str 
     :param cmd: the command to execute
     :type cmd: str
     :param target: the output to look for
@@ -90,7 +90,7 @@ def git_interact(cmd: str) -> None:
     run(['sudo', 'git', cmd], stdout=PIPE, stderr=PIPE, text=True)
 
 
-def kill_servers(processes: list[Popen], servers: list[int], clean_cmd: str, term_cmd: str) -> None:
+def kill_servers(processes: list[Popen], servers: list[str]) -> None:
     '''
     kill running servers and remove stored data
     :param processes: the server processes
@@ -104,17 +104,21 @@ def kill_servers(processes: list[Popen], servers: list[int], clean_cmd: str, ter
     '''
 
     print('terminating servers')
-    for process, server in zip(processes, servers):
-        remote_exec_sync(server, term_cmd)
+    for server in servers:
+        remote_exec_sync(server, 'killall etcd')
+        remote_exec_sync(server, 'killall networking_benc')
+        remote_exec_sync(server, 'rm -rf /local/etcd/storage.etcd')
+        remote_exec_sync(server, 'rm -rf /local/go_networking_benchmark/run/*')
+
+    for process in processes:
         process.kill()
         process.wait()
-        remote_exec_sync(server, clean_cmd)
 
 
 def remote_exec_sync(addr: str, cmd: str) -> str:
     '''
     execute a given command on an addressed computer and wait for it to complete
-    :param addr: the final digit of the IP address of the server
+    :param addr: the IP of the computer
     :type addr: int 
     :param cmd: the command to execute
     :type cmd: str
@@ -123,5 +127,4 @@ def remote_exec_sync(addr: str, cmd: str) -> str:
     '''
     addr_fmt: str = ADDR.format(addr=addr)
     exec_print(addr_fmt, cmd)
-    print(SSH_KWS + [addr_fmt, CMD.format(cmd=cmd)])
     return run(SSH_KWS + [addr_fmt, CMD.format(cmd=cmd)], stdout=PIPE, text=True).stdout

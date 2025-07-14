@@ -35,27 +35,19 @@ if __name__ == '__main__':
         for cfg in configs:
             server_cmd: str = ''
             client_cmd: str = ''
-            clean_cmd: str = ''
-            term_cmd: str = ''
             server_target: str = ''
-            servers: list[int] = []
-            cluster_servers: list[int] = cluster['servers']
-            server_count: int = len(cluster_servers)
+            servers: list[str] = []
             match system:
                 case 'etcd':
                     server_cmd = 'cd /local && sh run_etcd{node_num}.sh'
                     client_cmd = ETCD_CLIENT_CMD
-                    clean_cmd = 'rm -rf /local/etcd/storage.etcd'
                     server_target = 'Starting etcd...'
-                    term_cmd = '"killall etcd"'
-                    servers = range(server_count)
+                    servers = ['10.10.1.1', '10.10.1.2', '10.10.1.3']
                 case 'etcdl':
                     server_cmd = ETCDL_SERVER_CMD
                     client_cmd = ETCDL_CLIENT_CMD
-                    clean_cmd = 'rm -rf /local/go_networking_benchmark/run/*'
                     server_target = 'Trying to connect to peer '
-                    term_cmd = '"killall networking_benc"'
-                    servers = cluster_servers
+                    servers = cluster['servers']
 
             num_operations: int = cfg['num_operations']
             data_size: int = cfg['data_size']
@@ -68,8 +60,7 @@ if __name__ == '__main__':
             fast_path_writes: str = config_get(cfg, 'fast_path_writes')
 
             data_filepath: str = f'data/{test_name}.csv'
-            addrs: str = ':{port_num},'.join(
-                [f'10.10.1.{server}' for server in servers]) + ':{port_num}'
+            addrs: str = ':{port_num},'.join(servers) + ':{port_num}'
 
             processes: list[Popen] = []
             for i, server in enumerate(servers):
@@ -87,7 +78,7 @@ if __name__ == '__main__':
                                                                port_num=6900),
                                                            fast_path_writes=fast_path_writes)
                 processes.append(
-                    exec_wait(server + 1, server_cmd_fmt, server_target))
+                    exec_wait(server, server_cmd_fmt, server_target))
 
             try:
                 match system:
@@ -104,7 +95,7 @@ if __name__ == '__main__':
                                                        read_ratio=read_ratio,
                                                        num_clients=num_clients)
                 out: str = remote_exec_sync(
-                    cluster['client'] + 1, client_cmd).splitlines()[-1].strip()
+                    cluster['client'], client_cmd).splitlines()[-1].strip()
                 ops: int = extract_num(out, OPS_PATTERN)
                 med: int = extract_num(out, MED_PATTERN)
                 p95: int = extract_num(out, P95_PATTERN)
@@ -131,9 +122,9 @@ if __name__ == '__main__':
                                                      p95=p95,
                                                      p99=p99))
 
-                kill_servers(processes, servers, clean_cmd, term_cmd)
+                kill_servers(processes, servers)
             except KeyboardInterrupt:
-                kill_servers(processes, servers, clean_cmd, term_cmd)
+                kill_servers(processes, servers)
                 exit(1)
 
     print('saving data')

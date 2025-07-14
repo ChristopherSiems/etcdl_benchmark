@@ -5,8 +5,8 @@ from typing import NotRequired, TypedDict
 
 class ClusterConfig(TypedDict):
     '''type for cluster configuration'''
-    servers: list[int]
-    client: int
+    servers: list[str]
+    client: str
 
 
 class ETCDConfig(TypedDict):

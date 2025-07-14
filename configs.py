@@ -27,6 +27,7 @@ class ETCDLConfig(TypedDict):
     num_clients: int
     db_count: int
     wal_file_count: int
+    fast_path_writes: bool
 
 
 class Config(TypedDict):

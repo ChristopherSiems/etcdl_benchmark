@@ -7,88 +7,75 @@
     ],
     "client": "10.10.1.5"
   },
-  "etcd": [],
+  "etcd": [
+    {
+      "test_name": "purp",
+      "data_size": 10000,
+      "num_operations": 100000,
+      "read_ratio": 0.0,
+      "num_clients": 33
+    }
+  ],
   "etcdl": [
     {
-      "test_name": "all_write_2",
-      "data_size": 1000,
-      "num_operations": 200000,
+      "test_name": "purp",
+      "data_size": 10000,
+      "num_operations": 100000,
       "read_ratio": 0.0,
       "num_clients": 33,
-      "db_count": 1,
+      "fast_path_writes": true,
+      "num_dbs": 1,
       "wal_file_count": 1
     },
     {
-      "test_name": "all_write_2",
-      "data_size": 1000,
-      "num_operations": 200000,
+      "test_name": "purp",
+      "data_size": 10000,
+      "num_operations": 100000,
       "read_ratio": 0.0,
       "num_clients": 33,
-      "db_count": 3,
+      "fast_path_writes": true,
+      "num_dbs": 1,
+      "wal_file_count": 5
+    },
+    {
+      "test_name": "purp",
+      "data_size": 10000,
+      "num_operations": 100000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "fast_path_writes": true,
+      "num_dbs": 1,
+      "wal_file_count": 10
+    },
+    {
+      "test_name": "purp",
+      "data_size": 10000,
+      "num_operations": 100000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "fast_path_writes": false,
+      "num_dbs": 1,
       "wal_file_count": 1
     },
     {
-      "test_name": "all_write_2",
-      "data_size": 1000,
-      "num_operations": 200000,
+      "test_name": "purp",
+      "data_size": 10000,
+      "num_operations": 100000,
       "read_ratio": 0.0,
       "num_clients": 33,
-      "db_count": 5,
+      "fast_path_writes": false,
+      "num_dbs": 3,
       "wal_file_count": 1
     },
     {
-      "test_name": "all_write_2",
-      "data_size": 1000,
-      "num_operations": 200000,
+      "test_name": "purp",
+      "data_size": 10000,
+      "num_operations": 100000,
       "read_ratio": 0.0,
       "num_clients": 33,
-      "db_count": 1,
-      "wal_file_count": 5
-    },
-    {
-      "test_name": "all_write_2",
-      "data_size": 1000,
-      "num_operations": 200000,
-      "read_ratio": 0.0,
-      "num_clients": 33,
-      "db_count": 3,
-      "wal_file_count": 5
-    },
-    {
-      "test_name": "all_write_2",
-      "data_size": 1000,
-      "num_operations": 200000,
-      "read_ratio": 0.0,
-      "num_clients": 33,
-      "db_count": 5,
-      "wal_file_count": 5
-    },
-    {
-      "test_name": "all_write_2",
-      "data_size": 1000,
-      "num_operations": 200000,
-      "read_ratio": 0.0,
-      "num_clients": 33,
-      "db_count": 1,
-      "wal_file_count": 10
-    },
-    {
-      "test_name": "all_write_2",
-      "data_size": 1000,
-      "num_operations": 200000,
-      "read_ratio": 0.0,
-      "num_clients": 33,
-      "db_count": 3,
-      "wal_file_count": 10
-    },
-    {
-      "test_name": "all_write_2",
-      "data_size": 1000,
-      "num_operations": 200000,
-      "read_ratio": 0.0,
-      "num_clients": 33,
-      "db_count": 5,
-      "wal_file_count": 10
+      "fast_path_writes": false,
+      "num_dbs": 5,
+      "wal_file_count": 1
     }
   ]
 }

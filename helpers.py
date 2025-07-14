@@ -10,7 +10,7 @@ from configs import ETCDLConfig
 
 SSH_KWS: list[str] = ['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no']
 ADDR: str = 'root@10.10.1.{addr}'
-CMD: str = '\'stdbuf -oL -eL bash -lc "export PATH=\$PATH:/usr/local/go/bin && {cmd}"\''
+CMD: str = '\'stdbuf -oL -eL bash -lc "{cmd}"\''
 
 
 def config_get(config: ETCDLConfig, key: str) -> int | str:

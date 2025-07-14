@@ -104,7 +104,7 @@ def kill_servers(processes: list[Popen], servers: list[int], clean_cmd: str, ter
 
     print('terminating servers')
     for process, server in zip(processes, servers):
-        remote_exec_sync(server, '"killall networking_benc"')
+        remote_exec_sync(server, term_cmd)
         process.kill()
         process.wait()
         remote_exec_sync(server, clean_cmd)

@@ -31,10 +31,6 @@ if __name__ == '__main__':
         config = load(config_file)
     cluster: ClusterConfig = config.pop('cluster')
 
-    # for server in cluster['servers']:
-    #    print(get_env(server + 1))
-    # exit(1)
-
     for system, configs in config.items():
         for cfg in configs:
             server_cmd: str = ''
@@ -108,7 +104,7 @@ if __name__ == '__main__':
                                                        read_ratio=read_ratio,
                                                        num_clients=num_clients)
                 out: str = remote_exec_sync(
-                    cluster['client'], client_cmd).splitlines()[-1].strip()
+                    cluster['client'] + 1, client_cmd).splitlines()[-1].strip()
                 ops: int = extract_num(out, OPS_PATTERN)
                 med: int = extract_num(out, MED_PATTERN)
                 p95: int = extract_num(out, P95_PATTERN)

@@ -1,13 +1,13 @@
 from re import Pattern
 from re import compile as rcompile
 from re import findall
-from subprocess import PIPE, Popen, TimeoutExpired, run
+from subprocess import PIPE, Popen, run
 
 from configs import ETCDLConfig
 
 SSH_KWS: list[str] = ['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no']
 ADDR: str = 'root@10.10.1.{addr}'
-CMD: str = '\'stdbuf -oL -eL bash -c "echo \$\$; {cmd}"\''
+CMD: str = '\'stdbuf -oL -eL bash -c "{cmd}"\''
 
 
 def config_get(config: ETCDLConfig, key: str) -> int | str:
@@ -39,7 +39,7 @@ def exec_print(addr: str, cmd: str) -> None:
     print(f'{addr}$ {cmd}')
 
 
-def exec_wait(addr: int, cmd: str, target: str) -> tuple[Popen, str]:
+def exec_wait(addr: int, cmd: str, target: str) -> Popen:
     '''
     execute a given command on an addressed computer, then wait for a specific
     output from the process
@@ -53,13 +53,13 @@ def exec_wait(addr: int, cmd: str, target: str) -> tuple[Popen, str]:
     :rtype: Popen
     '''
 
-    exec_print(addr, cmd)
+    addr_fmt: str = ADDR.format(addr=addr)
+    exec_print(addr_fmt, cmd)
     process: Popen = Popen(
-        SSH_KWS + [ADDR.format(addr=addr), CMD.format(cmd=cmd)], stdout=PIPE, stderr=PIPE, text=True)
-    pid: str = process.stdout.readline().strip()
+        SSH_KWS + [addr_fmt, CMD.format(cmd=cmd)], stdout=PIPE, stderr=PIPE, text=True)
     while True:
         if target in process.stdout.readline():
-            return process, pid
+            return process
 
 
 def extract_num(txt: str, pattern: Pattern) -> int:
@@ -87,7 +87,7 @@ def git_interact(cmd: str) -> None:
     run(['sudo', 'git', cmd], stdout=PIPE, stderr=PIPE, text=True)
 
 
-def kill_servers(processes: list[Popen], pids: list[str], servers: list[int], clean_cmd: str) -> None:
+def kill_servers(processes: list[Popen], servers: list[int], clean_cmd: str) -> None:
     '''
     kill running servers and remove stored data
     :param processes: the server processes
@@ -99,11 +99,10 @@ def kill_servers(processes: list[Popen], pids: list[str], servers: list[int], cl
     '''
 
     print('terminating servers')
-    for process, pid, server in zip(processes, pids, servers):
+    for process, server in zip(processes, servers):
+        remote_exec_sync(server, f'"killall networking_benc"')
         process.kill()
         process.wait()
-
-        remote_exec_sync(server, f'"kill -TERM -{pid}"')
         remote_exec_sync(server, clean_cmd)
 
 
@@ -117,8 +116,8 @@ def remote_exec_sync(addr: str, cmd: str) -> str:
     :returns: the output of the command
     :rtype: str
     '''
-
-    exec_print(addr, cmd)
-    out: str = run(SSH_KWS + [ADDR.format(addr=addr), CMD.format(cmd=cmd)],
+    addr_fmt: str = ADDR.format(addr=addr)
+    exec_print(addr_fmt, cmd)
+    out: str = run(SSH_KWS + [addr_fmt, CMD.format(cmd=cmd)],
                    stdout=PIPE, stderr=PIPE, text=True).stdout
     return out

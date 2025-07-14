@@ -4,16 +4,15 @@ from json import load
 from pathlib import Path
 from re import Pattern
 from re import compile as rcompile
-from subprocess import Popen, TimeoutExpired, run
+from subprocess import Popen, TimeoutExpired
 from sys import exit
-from typing import list
 
 from configs import ClusterConfig, Config
 from helpers import (config_get, exec_wait, extract_num, git_interact,
                      kill_servers, remote_exec_sync)
 
 ETCD_CLIENT_CMD: str = 'cd /local/etcd-client && git pull && go build && ./etcd-client -addresses={server_addrs} -data-size={data_size} -num-ops={num_operations} -read-ratio={read_ratio} -num-clients={num_clients}'
-ETCDL_SERVER_CMD: str = 'PATH=\$PATH:/usr/local/go/bin; cd /local/go_networking_benchmark/run && cd .. && git fetch && git checkout dev && git pull && go build && mv networking_benchmark run/ && cd /local/go_networking_benchmark/run && ./networking_benchmark server -num-dbs={num_dbs} -max-db-index={db_indices) -node={node_num} -memory=false -wal-file-count={wal_file_count} -manual=fsync -flags=none -peer-connections=1 -peer-listen="10.10.1.{ip_num}:6900" -client-listen="10.10.1.{ip_num}:7000" -peer-addresses="{peer_addrs}" -fast-path-writes={fast_path_writes}'
+ETCDL_SERVER_CMD: str = 'export PATH=\$PATH:/usr/local/go/bin && cd /local/go_networking_benchmark/run && cd .. && git fetch && git checkout dev && git pull && go build && mv networking_benchmark run/ && cd /local/go_networking_benchmark/run && ./networking_benchmark server -num-dbs={num_dbs} -max-db-index={db_indices) -node={node_num} -memory=false -wal-file-count={wal_file_count} -manual=fsync -flags=none -peer-connections=1 -peer-listen="10.10.1.{ip_num}:6900" -client-listen="10.10.1.{ip_num}:7000" -peer-addresses="{peer_addrs}" -fast-path-writes={fast_path_writes}'
 ETCDL_CLIENT_CMD: str = 'cd /local/go_networking_benchmark && git fetch && git checkout dev && git pull && go build && ./networking_benchmark client -addresses={server_addrs} -data-size={data_size} -ops={num_operations} -read-ratio={read_ratio} -clients={num_clients} -read-mem=false -write-mem=false -find-leader=false'
 
 CSV_HEADER: str = 'system,server_count,data_size,read_ratio,num_clients,num_dbs,wal_file_count,fast_path_writes,ops,med,p95,p99\n'
@@ -82,11 +81,8 @@ if __name__ == '__main__':
                                                            peer_addrs=addrs.format(
                                                                port_num=6900),
                                                            fast_path_writes=fast_path_writes)
-                process: Popen
-                pid: str
-                process, pid = exec_wait(server, server_cmd_fmt, server_target)
-                process.append(process)
-                pids.append(pid)
+                process.append(
+                    exec_wait(server, server_cmd_fmt, server_target))
 
             try:
                 match system:
@@ -130,9 +126,9 @@ if __name__ == '__main__':
                                                      p95=p95,
                                                      p99=p99))
 
-                kill_servers(processes, pids, servers, clean_cmd)
+                kill_servers(processes, servers, clean_cmd)
             except KeyboardInterrupt:
-                kill_servers(processes, pids, servers, clean_cmd)
+                kill_servers(processes, servers, clean_cmd)
                 exit(1)
 
     print('saving data')

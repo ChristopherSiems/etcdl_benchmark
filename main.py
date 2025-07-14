@@ -31,9 +31,9 @@ if __name__ == '__main__':
         config = load(config_file)
     cluster: ClusterConfig = config.pop('cluster')
 
-    for server in cluster['servers']:
-        print(get_env(server + 1))
-    exit(1)
+    # for server in cluster['servers']:
+    #    print(get_env(server + 1))
+    # exit(1)
 
     for system, configs in config.items():
         for cfg in configs:

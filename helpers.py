@@ -10,7 +10,7 @@ from configs import ETCDLConfig
 
 SSH_KWS: list[str] = ['sudo', 'ssh', '-o', 'StrictHostKeyChecking=no']
 ADDR: str = 'root@10.10.1.{addr}'
-CMD: str = '\'stdbuf -oL -eL bash -lc "{cmd}"\''
+CMD: str = '{cmd}'
 
 
 def config_get(config: ETCDLConfig, key: str) -> int | str:
@@ -59,7 +59,7 @@ def exec_wait(addr: int, cmd: str, target: str) -> Popen:
     addr_fmt: str = ADDR.format(addr=addr)
     exec_print(addr_fmt, cmd)
     process: Popen = Popen(
-        SSH_KWS + [addr_fmt, CMD.format(cmd=cmd)], stdout=PIPE, stderr=PIPE, text=True)
+        SSH_KWS + [addr_fmt, CMD.format(cmd=cmd)], text=True)
     while True:
         if target in process.stdout.readline():
             return process

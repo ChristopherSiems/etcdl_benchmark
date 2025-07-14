@@ -85,8 +85,9 @@ def git_interact(cmd: str) -> None:
     :type cmd: str
     '''
 
-    print(f'$ git {cmd}')
-    run(['sudo', 'git', cmd], stdout=PIPE, text=True)
+    git_cmd: str = f'git {cmd}'
+    print(f'$ {cmd}')
+    run(['sudo', git_cmd], stdout=PIPE, text=True)
 
 
 def kill_servers(processes: list[Popen], servers: list[str]) -> None:

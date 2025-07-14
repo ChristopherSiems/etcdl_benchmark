@@ -79,6 +79,30 @@ def extract_num(txt: str, pattern: Pattern) -> int:
     return int(findall(rcompile(r'\d+'), findall(pattern, txt)[0])[-1])
 
 
+def get_env(server: int) -> dict[str, str]:
+    '''
+    get the environment variables of the given server
+    :param server: the last digit of the server's IP
+    :type server: int
+    :returns: the environment variables of the server
+    :rtype: dict[str, str]
+    '''
+
+    env_str: str = remote_execute_sync(server, 'env')
+    env: dict[str, str] = {}
+
+    for line in env_str.strip.splitlines():
+        if '=' in line:
+            key: str
+            value: str
+            key, value = line.split('=', 1)
+            env[key] = value
+
+    env['PATH'] = env['PATH'] + ':/usr/local/go/bin'
+
+    return env
+
+
 def git_interact(cmd: str) -> None:
     '''
     executes git command
@@ -123,6 +147,4 @@ def remote_exec_sync(addr: str, cmd: str) -> str:
     '''
     addr_fmt: str = ADDR.format(addr=addr)
     exec_print(addr_fmt, cmd)
-    out: str = run(SSH_KWS + [addr_fmt, CMD.format(cmd=cmd)],
-                   stdout=PIPE, stderr=PIPE, text=True).stdout
-    return out
+    return run(SSH_KWS + [addr_fmt, CMD.format(cmd=cmd)], stdout=PIPE, stderr=PIPE, text=True).stdout

@@ -8,7 +8,7 @@ from subprocess import Popen, TimeoutExpired
 from sys import exit
 
 from configs import ClusterConfig, Config
-from helpers import (config_get, exec_wait, extract_num, git_interact,
+from helpers import (config_get, exec_wait, extract_num, get_env, git_interact,
                      kill_servers, remote_exec_sync)
 
 ETCD_CLIENT_CMD: str = 'cd /local/etcd-client && git pull && go build && ./etcd-client -addresses={server_addrs} -data-size={data_size} -num-ops={num_operations} -read-ratio={read_ratio} -num-clients={num_clients}'
@@ -30,6 +30,10 @@ if __name__ == '__main__':
     with open('config.json', encoding='utf-8') as config_file:
         config = load(config_file)
     cluster: ClusterConfig = config.pop('cluster')
+
+    for server in cluster['servers']:
+        print(get_env(server + 1))
+    exit(1)
 
     for system, configs in config.items():
         for cfg in configs:

@@ -110,7 +110,7 @@ if __name__ == '__main__':
                         data_file.write(CSV_HEADER)
                 with open(data_filepath, 'a', encoding='utf-8') as data_file:
                     data_file.write(CSV_ENTRY.format(system=system,
-                                                     server_count=server_count,
+                                                     server_count=len(servers),
                                                      data_size=data_size,
                                                      read_ratio=read_ratio,
                                                      num_clients=num_clients,

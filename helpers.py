@@ -91,7 +91,7 @@ def get_env(server: int) -> dict[str, str]:
     env_str: str = remote_exec_sync(server, 'env')
     env: dict[str, str] = {}
 
-    for line in env_str.strip.splitlines():
+    for line in env_str.strip().splitlines():
         if '=' in line:
             key: str
             value: str

@@ -98,6 +98,7 @@ def get_env(server: int) -> dict[str, str]:
             key, value = line.split('=', 1)
             env[key] = value
 
+    print(env)
     env['PATH'] = env['PATH'] + ':/usr/local/go/bin'
 
     return env

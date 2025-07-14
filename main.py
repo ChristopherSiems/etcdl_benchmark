@@ -12,7 +12,7 @@ from helpers import (config_get, exec_wait, extract_num, git_interact,
                      kill_servers, remote_exec_sync)
 
 ETCD_CLIENT_CMD: str = 'cd /local/etcd-client && git pull && go build && ./etcd-client -addresses={server_addrs} -data-size={data_size} -num-ops={num_operations} -read-ratio={read_ratio} -num-clients={num_clients}'
-ETCDL_SERVER_CMD: str = 'export PATH=$PATH:/usr/local/go/bin/go && cd /local/go_networking_benchmark/run && cd .. && git fetch && git checkout dev && git pull && go build && mv networking_benchmark run/ && cd /local/go_networking_benchmark/run && ./networking_benchmark server -num-dbs={num_dbs} -max-db-index={db_indices) -node={node_num} -memory=false -wal-file-count={wal_file_count} -manual=fsync -flags=none -peer-connections=1 -peer-listen="10.10.1.{ip_num}:6900" -client-listen="10.10.1.{ip_num}:7000" -peer-addresses="{peer_addrs}" -fast-path-writes={fast_path_writes}'
+ETCDL_SERVER_CMD: str = 'cd /local/go_networking_benchmark/run && cd .. && git fetch && git checkout dev && git pull && go build && mv networking_benchmark run/ && cd /local/go_networking_benchmark/run && ./networking_benchmark server -num-dbs={num_dbs} -max-db-index={db_indices) -node={node_num} -memory=false -wal-file-count={wal_file_count} -manual=fsync -flags=none -peer-connections=1 -peer-listen="10.10.1.{ip_num}:6900" -client-listen="10.10.1.{ip_num}:7000" -peer-addresses="{peer_addrs}" -fast-path-writes={fast_path_writes}'
 ETCDL_CLIENT_CMD: str = 'cd /local/go_networking_benchmark && git fetch && git checkout dev && git pull && go build && ./networking_benchmark client -addresses={server_addrs} -data-size={data_size} -ops={num_operations} -read-ratio={read_ratio} -clients={num_clients} -read-mem=false -write-mem=false -find-leader=false'
 
 CSV_HEADER: str = 'system,server_count,data_size,read_ratio,num_clients,num_dbs,wal_file_count,fast_path_writes,ops,med,p95,p99\n'
@@ -43,7 +43,7 @@ if __name__ == '__main__':
             server_count: int = len(cluster_servers)
             match system:
                 case 'etcd':
-                    server_cmd = 'export PATH=$PATH:/usr/local/go/bin/go && cd /local && sh run_etcd{node_num}.sh'
+                    server_cmd = 'cd /local && sh run_etcd{node_num}.sh'
                     client_cmd = ETCD_CLIENT_CMD
                     clean_cmd = 'rm -rf /local/etcd/storage.etcd'
                     server_target = 'Starting etcd...'

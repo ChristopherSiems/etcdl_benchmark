@@ -37,17 +37,22 @@ if __name__ == '__main__':
             client_cmd: str = ''
             clean_cmd: str = ''
             server_target: str = ''
+            servers: list[int] = []
+            cluster_servers: list[int] = cluster['servers']
+            server_count: int = len(cluster_servers)
             match system:
                 case 'etcd':
                     server_cmd = 'cd /local && sh run_etcd{node_num}.sh'
                     client_cmd = ETCD_CLIENT_CMD
                     clean_cmd = 'rm -rf /local/etcd/storage.etcd'
                     server_target = 'Starting etcd...'
+                    servers = range(server_count)
                 case 'etcdl':
                     server_cmd = ETCDL_SERVER_CMD
                     client_cmd = ETCDL_CLIENT_CMD
                     clean_cmd = 'rm -rf /local/go_networking_benchmark/run/*'
                     server_target = 'Trying to connect to peer '
+                    servers = cluster_servers
 
             num_operations: int = cfg['num_operations']
             data_size: int = cfg['data_size']
@@ -59,15 +64,13 @@ if __name__ == '__main__':
             wal_file_count: int = config_get(cfg, 'wal_file_count')
             fast_path_writes: str = config_get(cfg, 'fast_path_writes')
 
-            servers: list[int] = cluster['servers']
-            server_count: int = len(servers)
+            data_filepath: str = f'data/{test_name}.csv'
             addrs: str = ':{port_num},'.join(
                 [f'10.10.1.{server}' for server in servers]) + ':{port_num}'
-            data_filepath: str = f'data/{test_name}.csv'
 
             processes: list[Popen] = []
             pids: list[str] = []
-            for server in servers:
+            for i, server in enumerate(servers):
                 server_cmd_fmt: str = ''
                 match system:
                     case 'etcd':
@@ -75,14 +78,14 @@ if __name__ == '__main__':
                     case 'etcdl':
                         server_cmd_fmt = server_cmd.format(num_dbs=num_dbs,
                                                            db_indices=num_operations + 100,
-                                                           node_num=server,
+                                                           node_num=i,
                                                            wal_file_count=wal_file_count,
                                                            ip_num=server + 1,
                                                            peer_addrs=addrs.format(
                                                                port_num=6900),
                                                            fast_path_writes=fast_path_writes)
                 process.append(
-                    exec_wait(server, server_cmd_fmt, server_target))
+                    exec_wait(server + 1, server_cmd_fmt, server_target))
 
             try:
                 match system:

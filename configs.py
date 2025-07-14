@@ -1,3 +1,5 @@
+'''type definitions'''
+
 from typing import NotRequired, TypedDict
 
 

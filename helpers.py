@@ -1,3 +1,5 @@
+'''helper functions'''
+
 from re import Pattern
 from re import compile as rcompile
 from re import findall

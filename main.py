@@ -6,6 +6,7 @@ from re import Pattern
 from re import compile as rcompile
 from subprocess import Popen, TimeoutExpired
 from sys import exit
+from time import sleep
 
 from configs import ClusterConfig, Config
 from helpers import (config_get, exec_wait, extract_num, git_interact,
@@ -30,6 +31,7 @@ if __name__ == '__main__':
     with open('config.json', encoding='utf-8') as config_file:
         config = load(config_file)
     cluster: ClusterConfig = config.pop('cluster')
+    kill_servers([], cluster['servers'])
 
     for system, configs in config.items():
         for cfg in configs:
@@ -95,6 +97,7 @@ if __name__ == '__main__':
                                                        num_operations=num_operations,
                                                        read_ratio=read_ratio,
                                                        num_clients=num_clients)
+                sleep(10)
                 out: str = remote_exec_sync(
                     cluster['client'], client_cmd).splitlines()[-1].strip()
                 ops: int = extract_num(out, OPS_PATTERN)

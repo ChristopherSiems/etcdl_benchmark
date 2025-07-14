@@ -7,49 +7,277 @@
     ],
     "client": "10.10.1.5"
   },
-  "etcd": [
+  "etcd": [],
+  "etcdl": [
     {
-      "test_name": "all_read",
-      "data_size": 1000,
-      "num_operations": 40000,
-      "read_ratio": 1.0,
-      "num_clients": 33
-    },
-    {
-      "test_name": "all_read",
-      "data_size": 10000,
-      "num_operations": 20000,
-      "read_ratio": 1.0,
-      "num_clients": 33
-    },
-    {
-      "test_name": "all_read",
+      "test_name": "all_write",
       "data_size": 100000,
-      "num_operations": 10000,
-      "read_ratio": 1.0,
-      "num_clients": 33
+      "num_operations": 25000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 1,
+      "wal_file_count": 1
     },
     {
-      "test_name": "95_read",
+      "test_name": "all_write",
       "data_size": 1000,
-      "num_operations": 40000,
-      "read_ratio": 0.95,
-      "num_clients": 33
+      "num_operations": 100000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 1,
+      "wal_file_count": 1
     },
     {
-      "test_name": "95_read",
+      "test_name": "all_write",
       "data_size": 10000,
-      "num_operations": 20000,
-      "read_ratio": 0.95,
-      "num_clients": 33
+      "num_operations": 50000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 1,
+      "wal_file_count": 1
     },
     {
-      "test_name": "95_read",
+      "test_name": "all_write",
+      "data_size": 1000,
+      "num_operations": 100000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 1,
+      "wal_file_count": 5
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 10000,
+      "num_operations": 50000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 1,
+      "wal_file_count": 5
+    },
+    {
+      "test_name": "all_write",
       "data_size": 100000,
-      "num_operations": 10000,
-      "read_ratio": 0.95,
-      "num_clients": 33
+      "num_operations": 25000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 1,
+      "wal_file_count": 5
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 1000,
+      "num_operations": 100000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 1,
+      "wal_file_count": 10
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 10000,
+      "num_operations": 50000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 1,
+      "wal_file_count": 10
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 100000,
+      "num_operations": 25000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 1,
+      "wal_file_count": 10
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 1000,
+      "num_operations": 100000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 3,
+      "wal_file_count": 1
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 10000,
+      "num_operations": 50000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 3,
+      "wal_file_count": 1
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 100000,
+      "num_operations": 25000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 3,
+      "wal_file_count": 1
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 1000,
+      "num_operations": 100000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 3,
+      "wal_file_count": 5
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 10000,
+      "num_operations": 50000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 3,
+      "wal_file_count": 5
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 100000,
+      "num_operations": 25000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 3,
+      "wal_file_count": 5
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 1000,
+      "num_operations": 100000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 3,
+      "wal_file_count": 10
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 10000,
+      "num_operations": 50000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 3,
+      "wal_file_count": 10
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 100000,
+      "num_operations": 25000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 3,
+      "wal_file_count": 10
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 1000,
+      "num_operations": 100000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 5,
+      "wal_file_count": 1
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 10000,
+      "num_operations": 50000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 5,
+      "wal_file_count": 1
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 100000,
+      "num_operations": 25000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 5,
+      "wal_file_count": 1
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 1000,
+      "num_operations": 100000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 5,
+      "wal_file_count": 5
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 10000,
+      "num_operations": 50000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 5,
+      "wal_file_count": 5
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 100000,
+      "num_operations": 25000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 5,
+      "wal_file_count": 5
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 1000,
+      "num_operations": 100000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 5,
+      "wal_file_count": 10
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 10000,
+      "num_operations": 50000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 5,
+      "wal_file_count": 10
+    },
+    {
+      "test_name": "all_write",
+      "data_size": 100000,
+      "num_operations": 25000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "read_mem": false,
+      "num_dbs": 5,
+      "wal_file_count": 10
     }
-  ],
-  "etcdl": []
+  ]
 }

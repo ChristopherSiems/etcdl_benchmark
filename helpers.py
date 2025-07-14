@@ -89,7 +89,7 @@ def git_interact(cmd: str) -> None:
     run(['sudo', 'git', cmd], stdout=PIPE, stderr=PIPE, text=True)
 
 
-def kill_servers(processes: list[Popen], servers: list[int], clean_cmd: str) -> None:
+def kill_servers(processes: list[Popen], servers: list[int], clean_cmd: str, term_cmd: str) -> None:
     '''
     kill running servers and remove stored data
     :param processes: the server processes
@@ -98,11 +98,13 @@ def kill_servers(processes: list[Popen], servers: list[int], clean_cmd: str) -> 
     :type servers: list[str]
     :param clean_cmd: the command to clean stored data
     :type clean_cmd: str
+    :param term_cmd: the command to terminate the server process
+    :type term_cmd: str
     '''
 
     print('terminating servers')
     for process, server in zip(processes, servers):
-        remote_exec_sync(server, f'"killall networking_benc"')
+        remote_exec_sync(server, '"killall networking_benc"')
         process.kill()
         process.wait()
         remote_exec_sync(server, clean_cmd)

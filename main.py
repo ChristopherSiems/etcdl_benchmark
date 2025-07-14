@@ -36,6 +36,7 @@ if __name__ == '__main__':
             server_cmd: str = ''
             client_cmd: str = ''
             clean_cmd: str = ''
+            term_cmd: str = ''
             server_target: str = ''
             servers: list[int] = []
             cluster_servers: list[int] = cluster['servers']
@@ -46,12 +47,14 @@ if __name__ == '__main__':
                     client_cmd = ETCD_CLIENT_CMD
                     clean_cmd = 'rm -rf /local/etcd/storage.etcd'
                     server_target = 'Starting etcd...'
+                    term_cmd = '"killall etcd"'
                     servers = range(server_count)
                 case 'etcdl':
                     server_cmd = ETCDL_SERVER_CMD
                     client_cmd = ETCDL_CLIENT_CMD
                     clean_cmd = 'rm -rf /local/go_networking_benchmark/run/*'
                     server_target = 'Trying to connect to peer '
+                    term_cmd = '"killall networking_benc"'
                     servers = cluster_servers
 
             num_operations: int = cfg['num_operations']
@@ -129,9 +132,9 @@ if __name__ == '__main__':
                                                      p95=p95,
                                                      p99=p99))
 
-                kill_servers(processes, servers, clean_cmd)
+                kill_servers(processes, servers, clean_cmd, term_cmd)
             except KeyboardInterrupt:
-                kill_servers(processes, servers, clean_cmd)
+                kill_servers(processes, servers, clean_cmd, term_cmd)
                 exit(1)
 
     print('saving data')

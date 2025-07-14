@@ -26,7 +26,6 @@ class ETCDLConfig(TypedDict):
     read_ratio: float
     num_clients: int
     db_count: int
-    read_mem: bool
     wal_file_count: int
 
 

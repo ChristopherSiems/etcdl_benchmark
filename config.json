@@ -1,34 +1,94 @@
 {
   "cluster": {
     "servers": [
+      "10.10.1.1",
       "10.10.1.2",
-      "10.10.1.3",
-      "10.10.1.4"
+      "10.10.1.3"
     ],
     "client": "10.10.1.5"
   },
-  "etcd": [
+  "etcd": [],
+  "etcdl": [
     {
-      "test_name": "all_write",
+      "test_name": "all_write_2",
       "data_size": 1000,
       "num_operations": 200000,
       "read_ratio": 0.0,
-      "num_clients": 33
+      "num_clients": 33,
+      "db_count": 1,
+      "wal_file_count": 1
     },
     {
-      "test_name": "all_write",
-      "data_size": 10000,
-      "num_operations": 100000,
+      "test_name": "all_write_2",
+      "data_size": 1000,
+      "num_operations": 200000,
       "read_ratio": 0.0,
-      "num_clients": 33
+      "num_clients": 33,
+      "db_count": 3,
+      "wal_file_count": 1
     },
     {
-      "test_name": "all_write",
-      "data_size": 100000,
-      "num_operations": 20000,
+      "test_name": "all_write_2",
+      "data_size": 1000,
+      "num_operations": 200000,
       "read_ratio": 0.0,
-      "num_clients": 33
+      "num_clients": 33,
+      "db_count": 5,
+      "wal_file_count": 1
+    },
+    {
+      "test_name": "all_write_2",
+      "data_size": 1000,
+      "num_operations": 200000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "db_count": 1,
+      "wal_file_count": 5
+    },
+    {
+      "test_name": "all_write_2",
+      "data_size": 1000,
+      "num_operations": 200000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "db_count": 3,
+      "wal_file_count": 5
+    },
+    {
+      "test_name": "all_write_2",
+      "data_size": 1000,
+      "num_operations": 200000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "db_count": 5,
+      "wal_file_count": 5
+    },
+    {
+      "test_name": "all_write_2",
+      "data_size": 1000,
+      "num_operations": 200000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "db_count": 1,
+      "wal_file_count": 10
+    },
+    {
+      "test_name": "all_write_2",
+      "data_size": 1000,
+      "num_operations": 200000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "db_count": 3,
+      "wal_file_count": 10
+    },
+    {
+      "test_name": "all_write_2",
+      "data_size": 1000,
+      "num_operations": 200000,
+      "read_ratio": 0.0,
+      "num_clients": 33,
+      "db_count": 5,
+      "wal_file_count": 10
     }
-  ],
-  "etcdl": []
+  ]
 }

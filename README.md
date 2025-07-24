@@ -107,7 +107,7 @@ sudo python3.13 main.py
 
 ## Plot Configurations
 
-#### Plots 3 & 4
+#### Plots 1 & 2
 
 ```json
 "etcd": [

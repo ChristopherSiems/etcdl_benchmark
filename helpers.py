@@ -78,18 +78,6 @@ def extract_num(txt: str, pattern: Pattern) -> int:
     return int(findall(rcompile(r'\d+'), findall(pattern, txt)[0])[-1])
 
 
-def git_interact(cmd: str) -> None:
-    '''
-    executes git command
-    :param cmd: the git command
-    :type cmd: str
-    '''
-
-    git_cmd: str = f'sudo git {cmd}'
-    print(f'$ {cmd}')
-    run(git_cmd, stdout=PIPE, text=True)
-
-
 def kill_servers(processes: list[Popen], servers: list[str]) -> None:
     '''
     kill running servers and remove stored data

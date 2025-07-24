@@ -1,7 +1,9 @@
 # ETCD & ETCD-Light Benchmarking
 
+## Running the Benchmark
+
 1. Launch a cluster of 5 CloudLab nodes running the [billyb-consensus](https://www.cloudlab.us/show-profile.php?uuid=9d6c84f3-6431-11f0-90d9-e4434b2381fc) experiment profile on 'c6525-100g' machines.
-2. Manually run an `etcd-light` benchmark to identify 3 functional 'server nodes' in your cluster.
+2. Manually run an `etcd-light` benchmark to identify 3 functional 'server nodes' in your cluster. Or reference the [Known Nodes](#known-nodes) section, to identify 3 functional server nodes. It is still good practice to manually check that the nodes you are using behave normally.
 3. Select one of the other nodes to be the 'client node' and the remaining node will be the 'control node', where the script is run.
 4. On the control node, `cd` into the `/local/etcdl_benchmark` directory.
 
@@ -27,7 +29,7 @@ cd /local/etcdl_benchmark
 
 > The above configuration declares the first three CloudLab nodes to be the first three server nodes and declares the fifth CloudLab node to be the client. By process of elimination, the control node is the fourth CloudLab node.
 
-6. Configure the `config.json` file's benchmark configurations. There is a field for each system to benchmark: `etcd` and `etcdl` (`etcd-light`).
+6. Configure the `config.json` file's benchmark configurations. There is a field for each system to benchmark: `etcd` and `etcdl` (`etcd-light`). Configurations for the plots in the paper are presented in [Plot Configurations](#plot-configurations).
 
 - `etcd` is a list of configurations for benchmarks of the standard `etcd` implementation. Each configuration in the list will run the benchmark it describes. Each configuration will need the following fields:
   - `test_name` should be set to a string, where the string is a name to give to the benchmark. The name will become the name of the `.csv` file where the collected data is stored. If the name is new, a new file will be created; if the name has been used before, then the data will be appended to the existing data.
@@ -85,3 +87,114 @@ sudo python3.13 main.py
 ```
 
 9. The data from the benchmarks you just ran will be saved in `.csv` files in the `data/` directory. These files will be named after the names given to the benchmarks.
+
+## Known Nodes
+
+### Good Nodes
+
+- `amd250`
+- `amd251`
+- `amd252`
+- `amd255`
+- `amd256`
+- `amd262`
+- `amd268`
+
+### Bad Nodes
+
+- `amd264`
+- `amd257`
+
+## Plot Configurations
+
+#### Plots 3 & 4
+
+```json
+"etcd": [
+  {
+    "test_name": "all_write",
+    "data_size": 10000,
+    "num_operations": 200000,
+    "read_ratio": 0.0,
+    "num_clients": 33
+  }
+]
+"etcdl": [
+  {
+    "test_name": "all_write",
+    "data_size": 10000,
+    "num_operations": 200000,
+    "read_ratio": 0.0,
+    "num_clients": 33,
+    "fast_path_writes": false,
+    "num_dbs": 1,
+    "wal_file_count": 1
+  },
+  {
+    "test_name": "all_write",
+    "data_size": 10000,
+    "num_operations": 200000,
+    "read_ratio": 0.0,
+    "num_clients": 33,
+    "fast_path_writes": false,
+    "num_dbs": 3,
+    "wal_file_count": 1
+  },
+  {
+    "test_name": "all_write",
+    "data_size": 10000,
+    "num_operations": 200000,
+    "read_ratio": 0.0,
+    "num_clients": 33,
+    "fast_path_writes": false,
+    "num_dbs": 5,
+    "wal_file_count": 1
+  }
+]
+```
+
+#### Plots 3 & 4
+
+```json
+"etcd": [
+  {
+    "test_name": "all_write",
+    "data_size": 100000,
+    "num_operations": 20000,
+    "read_ratio": 0.0,
+    "num_clients": 33
+  }
+]
+"etcdl": [
+  {
+    "test_name": "all_write",
+    "data_size": 100000,
+    "num_operations": 20000,
+    "read_ratio": 0.0,
+    "num_clients": 33,
+    "fast_path_writes": true,
+    "num_dbs": 1,
+    "wal_file_count": 1
+  },
+  {
+    "test_name": "all_write",
+    "data_size": 100000,
+    "num_operations": 20000,
+    "read_ratio": 0.0,
+    "num_clients": 33,
+    "fast_path_writes": true,
+    "num_dbs": 1,
+    "wal_file_count": 5
+  },
+  {
+    "test_name": "all_write",
+    "data_size": 100000,
+    "num_operations": 20000,
+    "read_ratio": 0.0,
+    "num_clients": 33,
+    "fast_path_writes": true,
+    "num_dbs": 1,
+    "wal_file_count": 10
+  }
+]
+```
